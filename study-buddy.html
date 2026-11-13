@@ -543,6 +543,14 @@ html.lgtext{font-size:112.5%}html.lgtext body{font-size:1.06rem}
 <button class="tab" data-g="set" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>Settings</button>
 </nav>
 <header id="sub" class="subbar" aria-label="Sections"></header>
+<script>/*PROFILE-KEYS: which student's copy the device storage and cloud doc point at; see PROFILES at the end*/(function(){
+var P='main';try{P=localStorage.getItem('sb_pid')||'main'}catch(e){}if(!/^[a-z0-9]{1,24}$/.test(P))P='main';window.SBPID=P;
+var MAP={coach1:1,coach1_syn:1,coachNoteImg:1};function k(x){return MAP[x]&&window.SBPID!=='main'?x+':'+window.SBPID:x}
+var g=Storage.prototype.getItem,s=Storage.prototype.setItem,r=Storage.prototype.removeItem;
+Storage.prototype.getItem=function(x){return g.call(this,k(x))};Storage.prototype.setItem=function(x,v){return s.call(this,k(x),v)};Storage.prototype.removeItem=function(x){return r.call(this,k(x))};
+window.sbDocName=function(){return window.SBPID!=='main'?'coach_'+window.SBPID:'coach'};
+window.sbRaw={get:function(x){return g.call(localStorage,x)},set:function(x,v){return s.call(localStorage,x,v)},del:function(x){return r.call(localStorage,x)}};
+})()</script>
 <script>(function(){function m(){var n=document.getElementById('topnav');if(n)document.documentElement.style.setProperty('--navh',n.offsetHeight+'px')}m();window.addEventListener('resize',m);window.addEventListener('load',m)})()</script>
 <main id="app"></main>
 <style>
@@ -1648,13 +1656,13 @@ function save(){
 }
 function push(){if(wq){wt=setTimeout(push,500);return}
   /* never write to the cloud before the cloud copy has been read once: a slow start must not replace saved progress with a blank one */
-  if(!CR){wq=DOC.get().then(function(sn){if(sn.exists){var r=JSON.parse(sn.data().s||'{}');if(r.ev&&svNewer(r,S)){S=fix(r);try{localStorage.setItem('coach1',JSON.stringify(S))}catch(e){}try{render()}catch(e){}}}CR=true;synMark();wq=null;clearTimeout(wt);wt=setTimeout(push,50)},function(){wq=null;clearTimeout(wt);wt=setTimeout(push,5000)});return}
+  if(!CR){var D1=DOC;wq=DOC.get().then(function(sn){if(D1!==DOC){wq=null;return}if(sn.exists){var r=JSON.parse(sn.data().s||'{}');if(r.ev&&svNewer(r,S)){S=fix(r);try{localStorage.setItem('coach1',JSON.stringify(S))}catch(e){}try{render()}catch(e){}}}CR=true;synMark();wq=null;clearTimeout(wt);wt=setTimeout(push,50)},function(){wq=null;clearTimeout(wt);wt=setTimeout(push,5000)});return}
   wq=DOC.set({s:JSON.stringify(S),at:Date.now()}).then(synMark,function(){}).then(function(){wq=null})}
 (async function(){
   try{
     var db=await claude.use('db'),u=await claude.use('user');if(!db||!u)return;
-    var id=await u.id();if(!id)return;DB=db;DOC=db.doc('data/users/'+id+'/coach');
-    var snap=await Promise.race([DOC.get(),new Promise(function(_,r){setTimeout(function(){r(new Error('timeout'))},10000)})]);
+    var id=await u.id();if(!id)return;DB=db;window.SBDB=db;window.SBUID=id;DOC=db.doc('data/users/'+id+'/'+sbDocName());var D0=DOC;if(window.sbOnDb)sbOnDb();
+    var snap=await Promise.race([DOC.get(),new Promise(function(_,r){setTimeout(function(){r(new Error('timeout'))},10000)})]);if(D0!==DOC)return;
     if(snap.exists){var r=JSON.parse(snap.data().s||'{}');
       if(r.ev&&svNewer(r,S)){S=fix(r);try{localStorage.setItem('coach1',JSON.stringify(S))}catch(e){}CR=true;synMark();if(!mode||view!=='practice')render()}
       else{CR=true;synMark();save()}}
@@ -10947,7 +10955,7 @@ function rget(){try{var r=localStorage.getItem(K);return ROLES[r]?r:null}catch(e
 /* only Student is remembered; a tutor or guest session ends when the app closes, so the next launch asks again */
 function rset(r){try{if(r==='student')localStorage.setItem(K,r);else localStorage.removeItem(K)}catch(e){}}
 window.ROLE=rget()||'pending';
-var BASE=null;/* the student's saved state, kept while a tutor looks around */
+var BASE=null;window.sbSetBase=function(v){BASE=v};/* the student's saved state, kept while a tutor looks around */
 /* no write to the student's device copy unless the student is using the app */
 var _ls=Storage.prototype.setItem,_lsRaw=_ls;Storage.prototype.setItem=function(k,v){if(k==='coach1'&&ROLE!=='student')return;return _ls.call(this,k,v)};
 var _save0=save;
@@ -10964,14 +10972,14 @@ async function tPersist(chg){var st=studentS();
 var _fix0=fix;fix=function(s){if(ROLE==='guest')return S;var r=_fix0(s);if(ROLE==='tutor')BASE=JSON.stringify(r);return r};
 function studentS(){var s=null;try{s=JSON.parse(localStorage.getItem('coach1'))}catch(e){}return s&&s.ev?_fix0(s):EMPTY()}
 function flush(){if(ROLE==='student'&&DOC){try{clearTimeout(wt);push()}catch(e){}}}
-async function cloud(){if(!DOC||ROLE==='guest')return;try{var sn=await DOC.get();if(sn.exists&&ROLE!=='guest'){var r=JSON.parse(sn.data().s||'{}');if(r.ev&&svNewer(r,S)){S=_fix0(r);if(ROLE==='student'){try{_lsRaw.call(localStorage,'coach1',JSON.stringify(S))}catch(e){}}else BASE=JSON.stringify(S);render()}}}catch(e){}}
+async function cloud(){if(!DOC||ROLE==='guest')return;var D0=DOC;try{var sn=await DOC.get();if(D0!==DOC)return;if(sn.exists&&ROLE!=='guest'){var r=JSON.parse(sn.data().s||'{}');if(r.ev&&svNewer(r,S)){S=_fix0(r);if(ROLE==='student'){try{_lsRaw.call(localStorage,'coach1',JSON.stringify(S))}catch(e){}}else BASE=JSON.stringify(S);render()}}}catch(e){}}
 window.useAs=function(r){flush();var was=ROLE;ROLE=r;rset(r);
   if(r==='guest'){S=EMPTY();try{S=_fix0(S)}catch(e){}S.int='';BASE=null}
   else{S=studentS();BASE=r==='tutor'?JSON.stringify(S):null;if(was==='guest'||was==='pending')cloud()}
   if(typeof mode!=='undefined'){mode=null;GEN=null}
   var w=document.getElementById('whoScr');if(w)w.remove();
   try{applyPrefs()}catch(e){}view='today';render();window.scrollTo(0,0);
-  showToast(r==='student'?'Signed in as the student. Progress is saved.':r==='tutor'?'Tutor view. Nothing you do is recorded.':'Guest. Nothing is saved.')};
+  showToast(r==='student'?'Signed in as the student. Progress is saved.':r==='tutor'?(window.sbTutorMsg?sbTutorMsg():'Tutor view. Nothing you do is recorded.'):'Guest. Nothing is saved.')};
 var IC={student:'<path d="M3 9l9-4 9 4-9 4z"/><path d="M7 11v4c0 1.5 2.2 3 5 3s5-1.5 5-3v-4"/>',tutor:'<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M15 6h6M15 10h6M17 14h4"/>',guest:'<circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/>'};
 window.whoScreen=function(){if(document.getElementById('whoScr'))return;var d=document.createElement('div');d.className='who';d.id='whoScr';d.setAttribute('role','dialog');d.setAttribute('aria-label','Who is using Study Buddy?');
   d.innerHTML='<div><div class="eyebrow">Study Buddy</div><h1>Who is using the app?</h1><p class="sub">Student is remembered on this device; tutor and guest are asked again next time. Switch any time from Settings.</p>'+
@@ -10981,12 +10989,11 @@ window.whoScreen=function(){if(document.getElementById('whoScr'))return;var d=do
   document.body.appendChild(d);var f=d.querySelector('button');if(f)f.focus()};
 /* banner for tutor and guest, and a switch card at the top of Settings */
 function bar(){if(ROLE==='student'||ROLE==='pending')return;var a=document.getElementById('app');if(!a||a.querySelector('.rbar'))return;var e=document.createElement('div');e.className='rbar';
-  e.innerHTML='<b>'+ROLES[ROLE]+'</b><span>'+(ROLE==='tutor'?(view==='set'?'Settings you change here are kept. Nothing else is recorded.':'Viewing the student’s progress. Nothing here is recorded.'):'Blank start. Nothing is saved.')+'</span><button class="link" onclick="whoScreen()">Switch</button>';a.insertBefore(e,a.firstChild)}
+  e.innerHTML='<b>'+ROLES[ROLE]+'</b><span>'+(ROLE==='tutor'?(view==='set'?'Settings you change here are kept. Nothing else is recorded.':(window.sbViewing?sbViewing():'Viewing the student’s progress. Nothing here is recorded.')):'Blank start. Nothing is saved.')+'</span><button class="link" onclick="whoScreen()">Switch</button>';a.insertBefore(e,a.firstChild)}
 function setCard(){var a=document.getElementById('app');if(!a||document.getElementById('roleCard'))return;var c=document.createElement('div');c.className='card';c.id='roleCard';
   c.innerHTML='<h2>Who is using the app</h2><p class="sub" style="margin:2px 0 8px">Now: <b>'+(ROLES[ROLE]||'Not chosen')+'</b>. Only the student’s practice is tracked; tutor and guest sessions leave the student’s progress, mistakes and usage log untouched.</p><button class="btn alt" onclick="whoScreen()">Switch user</button>';
   var h1=a.querySelector('h1'),sub=h1&&h1.nextElementSibling;a.insertBefore(c,sub&&sub.nextSibling||a.firstChild)}
 var _rR0=render;render=function(){_rR0();try{if(view==='set')setCard();bar()}catch(e){}};
-if(ROLE==='pending'){whoScreen()}
 render();
 })();
 /*ROLE-END*/
@@ -13169,47 +13176,262 @@ try{render()}catch(e){}
 })();
 /*THINK-END*/
 </script>
+<style>
+/* profiles: picker tiles, PIN keypad, tutor dashboard */
+.pf-tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 6px}
+.pf-tile{display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 8px;text-align:center;cursor:pointer;font:inherit;color:inherit;min-width:0}
+.pf-tile:hover{border-color:var(--accent)}.pf-tile:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pf-tile b{font-size:1rem;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pf-tile small{color:var(--muted);font-size:.78rem}
+.pf-av{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:1.1rem;color:#fff}
+.pf-plus{background:var(--line);color:var(--fg);font-size:1.5rem;font-weight:400}
+.pf-c{text-align:center}
+.pf-dots{display:flex;justify-content:center;gap:14px;margin:18px 0 8px}
+.pf-dots i{width:16px;height:16px;border-radius:50%;border:2px solid var(--accent);box-sizing:border-box}.pf-dots i.on{background:var(--accent)}
+@media (prefers-reduced-motion:no-preference){.pf-shake{animation:pfsh .35s}@keyframes pfsh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}}
+.pf-msg{min-height:1.5em;text-align:center;font-size:.9rem;color:var(--bad);margin:0 0 8px}
+.pf-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:300px;margin:0 auto 14px}
+.pf-pad button{height:58px;border-radius:14px;border:1px solid var(--line);background:var(--card);font:inherit;font-size:1.4rem;color:var(--fg);cursor:pointer;font-variant-numeric:tabular-nums}
+.pf-pad button:active{background:var(--accent-soft)}.pf-pad button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pf-pad .pf-g{border:0;background:none;font-size:.95rem;color:var(--muted)}
+.pf-pad .pf-ok{background:var(--accent);border-color:var(--accent);color:var(--bg);font-size:1rem;font-weight:600}
+.pf-links{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-top:4px}
+.who .note{margin-top:12px}
+.pf-stu{border-left:4px solid var(--accent);border-radius:6px 14px 14px 6px}
+.pf-meta{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.88rem;color:var(--muted);margin:4px 0 8px;font-variant-numeric:tabular-nums}
+.pf-idle{font-size:.78rem;color:var(--muted);white-space:nowrap}
+.pf-stu .btn,.pf-rep .btn,#pfCard .btn,.who .pf-c .btn{text-align:center}
+.pf-rep pre{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;font:inherit;font-size:.88rem;margin:8px 0;overflow-wrap:anywhere}
+</style>
 <script>
-/*LOCK: an optional PIN on the Student profile, so that choosing "Student" on the sign-in screen is not open to anyone holding the device */
+/*PROFILES: several students on one account, each with their own progress and PIN; a tutor PIN, dashboard and reports; idle lock.
+  Each student's progress is its own copy: the first profile keeps 'coach1' and the cloud doc 'coach' from before; others use 'coach1:<id>' and 'coach_<id>'.
+  The profile list syncs through the cloud doc 'sb_profiles' on the same signed-in account. */
 (function(){
+var R=window.sbRaw,COLS=['#3b5bdb','#d6336c','#2b8a3e','#0c8599','#7048e8','#e8590c'],IDLE={student:2400e3,tutor:2400e3};
 function ph(p){var a=2166136261,b=5381,s='sb|'+p+'|pin';for(var i=0;i<s.length;i++){var c=s.charCodeAt(i);a^=c;a=Math.imul(a,16777619);b=Math.imul(b,33)^c}return(a>>>0).toString(36)+'.'+(b>>>0).toString(36)}
-function stu(){try{var s=JSON.parse(localStorage.getItem('coach1'));return s&&typeof s==='object'?s:null}catch(e){return null}}
-function pinOf(){var s=stu();return(s&&s.pin)||(ROLE!=='guest'&&S.pin)||null}
-function tries(){try{return JSON.parse(localStorage.getItem('sb_pint'))||{n:0,t:0}}catch(e){return{n:0,t:0}}}
-function setTries(o){try{localStorage.setItem('sb_pint',JSON.stringify(o))}catch(e){}}
-/* AUTH: this session has shown it is the student (remembered device, or PIN entered). A PIN that arrives late from the cloud still locks an unproven session. */
-var _use=window.useAs,UNL=false,AUTH=ROLE==='student';
-window.useAs=function(r){if(r==='student'&&ROLE!=='student'&&pinOf()&&!UNL)return pinAsk();if(r!=='student')AUTH=false;_use(r)};
-function pinAsk(){var w=document.getElementById('whoScr');if(!w){whoScreen();w=document.getElementById('whoScr')}if(!w)return;
-  w.innerHTML='<div><div class="eyebrow">Study Buddy</div><h1>Student PIN</h1><p class="sub">The student has locked this profile. Enter the PIN to open it. Tutor and Guest need no PIN.</p>'+
-   '<form id="pinF"><input id="pinI" class="field pinin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" aria-label="Student PIN"><p class="sub" id="pinM" role="alert" style="min-height:1.4em;margin:0 0 6px"></p><button class="btn" style="text-align:center" type="submit">Open</button></form>'+
-   '<button class="btn alt" style="text-align:center" onclick="pinBack()">Back</button><p style="margin-top:16px"><button class="link" onclick="pinForgot()">Forgot the PIN?</button></p></div>';
-  var f=document.getElementById('pinF'),i=document.getElementById('pinI'),m=document.getElementById('pinM');i.focus();
-  f.onsubmit=function(ev){ev.preventDefault();var T=tries(),wait=Math.ceil((T.t-Date.now())/1000);
-    if(wait>0){m.textContent='Too many tries. Wait '+wait+' seconds.';return}
-    if(ph(i.value.trim())===pinOf()){setTries({n:0,t:0});UNL=true;AUTH=true;try{_use('student')}finally{UNL=false}return}
-    T.n++;if(T.n>=5){T.t=Date.now()+60000;T.n=0;m.textContent='Too many tries. Wait 60 seconds.'}else m.textContent='That PIN does not match. '+(5-T.n)+' tries left.';setTries(T);i.value='';i.focus()}}
-window.pinBack=function(){var w=document.getElementById('whoScr');if(w)w.remove();whoScreen()};
-/* a forgotten PIN can be cleared, but never silently: the student is told the next time they open the app */
-window.pinForgot=function(){if(!confirm('Remove the student PIN? The student will be shown that it was removed, and when.'))return;
-  UNL=true;AUTH=true;try{_use('student')}finally{UNL=false}delete S.pin;S.pinl=0;S.pinr=Date.now();save();setTries({n:0,t:0});render();showToast('PIN removed. Set a new one in Settings.')};
-window.pinSet=function(){var a=document.getElementById('pinN'),m=document.getElementById('pinSM');if(!a||ROLE!=='student')return;var v=a.value.trim();
-  if(!/^\d{4,8}$/.test(v)){m.textContent='Use 4 to 8 digits.';return}S.pin=ph(v);S.pinr=0;AUTH=true;save();render();showToast('PIN set. It is asked for whenever someone chooses Student.')};
-window.pinOff=function(){if(ROLE!=='student'||!confirm('Remove the student PIN?'))return;delete S.pin;S.pinl=0;save();render();showToast('PIN removed.')};
-window.pinAlways=function(on){if(ROLE!=='student')return;S.pinl=on?1:0;save()};
-window.pinSeen=function(){S.pinr=0;save();render()};
-function card(){if(view!=='set'||ROLE!=='student'||document.getElementById('pinCard'))return;var rc=document.getElementById('roleCard');if(!rc)return;var c=document.createElement('div');c.className='card';c.id='pinCard';
-  c.innerHTML='<h2>Student PIN</h2>'+(S.pin?'<p class="sub" style="margin:2px 0 8px">On. Anyone who chooses Student on the sign-in screen must enter it, so your progress and private notes stay yours. Tutor and Guest need no PIN.</p><label style="display:flex;gap:8px;align-items:center;font-size:.93rem;margin-bottom:8px"><input type="checkbox" '+(S.pinl?'checked':'')+' onchange="pinAlways(this.checked)">Also ask every time the app opens on this device</label><button class="btn alt" onclick="pinOff()">Remove PIN</button>':
-   '<p class="sub" style="margin:2px 0 8px">Off. Without a PIN, anyone using this device can choose Student and see your progress and private notes. Set 4 to 8 digits that only you know.</p><div class="ask"><input id="pinN" type="password" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="New PIN" aria-label="New PIN"><button class="chipb" onclick="pinSet()">Set PIN</button></div><p class="sub" id="pinSM" role="alert" style="margin:6px 0 0"></p>');
+function now(){return Date.now()}
+function jget(k){try{return JSON.parse(R.get(k))}catch(e){return null}}
+function jset(k,v){try{R.set(k,JSON.stringify(v))}catch(e){}}
+function e_(s){return typeof esc==='function'?esc(s):String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+
+/* ---------- the profile list ---------- */
+var REG=jget('sb_profiles');
+if(!REG||!REG.students||!REG.students.length){REG={v:1,at:0,students:[{id:'main',name:'Student',col:COLS[0],pin:null,pl:0,share:true}],tutor:{pin:null,pl:0}};
+  var old=jget('coach1');if(old&&old.pin)REG.students[0].pin=old.pin;jset('sb_profiles',REG)}
+if(!REG.tutor)REG.tutor={pin:null,pl:0};
+var RDOC=null;
+function regSave(){REG.at=now();jset('sb_profiles',REG);if(RDOC)RDOC.set({s:JSON.stringify(REG),at:REG.at}).catch(function(){})}
+window.sbOnDb=function(){if(!window.SBDB||!window.SBUID||RDOC)return;RDOC=SBDB.doc('data/users/'+SBUID+'/sb_profiles');
+  RDOC.get().then(function(sn){var r=null;if(sn.exists){try{r=JSON.parse(sn.data().s)}catch(e){}}
+    if(r&&r.students&&r.students.length&&(+r.at||0)>(+REG.at||0)){REG=r;if(!REG.tutor)REG.tutor={pin:null,pl:0};jset('sb_profiles',REG);refresh()}
+    else RDOC.set({s:JSON.stringify(REG),at:REG.at||now()}).catch(function(){});
+    TST={};if(view==='tut'&&ROLE==='tutor')render()},function(){})};
+if(window.SBDB)sbOnDb();
+function stu(id){return REG.students.filter(function(s){return s.id===id})[0]||null}
+function cur(){return stu(window.SBPID)}
+function ini(n){var p=String(n||'?').trim().split(/\s+/);return((p[0]||'?').charAt(0)+(p[1]?p[1].charAt(0):'')).toUpperCase()}
+function refresh(){var w=document.getElementById('whoScr');if(w&&PV.scr==='who')draw();
+  if(ROLE==='student'&&(!cur()||cur().needsNew)){ROLE='pending';whoScreen()}}
+
+/* switch whose progress is loaded: write out the current student's copy first, then point the device and cloud copies at the new one */
+function setPid(pid){if(pid===window.SBPID)return;
+  try{if(ROLE==='student'&&DOC){clearTimeout(wt);push()}}catch(e){}
+  window.SBPID=pid;try{R.set('sb_pid',pid)}catch(e){}
+  CR=false;if(window.SBDB&&window.SBUID)DOC=SBDB.doc('data/users/'+SBUID+'/'+sbDocName())}
+var _use=window.useAs;
+function enterStudent(id){setPid(id);ROLE='pending';_use('student');act()}
+function enterTutor(){TST={};setPid('tview');ROLE='pending';_use('tutor');if(window.sbSetBase)sbSetBase(null);view='tut';render();act()}
+window.useAs=function(r){if(r==='student'){whoScreen();return}if(r==='tutor'){tutorGo();return}if(r==='guest')setPid('none');_use(r)};
+window.sbTutorMsg=function(){var s=cur();return s?'Viewing '+s.name+'’s progress. Nothing you do is recorded.':'Tutor view. Pick a student to see their progress.'};
+window.sbViewing=function(){var s=cur();return(s?'Viewing <b>'+e_(s.name)+'</b>’s progress. Nothing here is recorded.':'No student open. Nothing here is recorded.')+' <button class="link" style="margin-left:6px" onclick="goView(\'tut\')">All students</button>'};
+
+/* ---------- sign-in screen: profiles, PIN keypad, new student ---------- */
+var PV={scr:'who'};
+function shell(){var w=document.getElementById('whoScr');if(!w){w=document.createElement('div');w.className='who';w.id='whoScr';w.setAttribute('role','dialog');w.setAttribute('aria-modal','true');document.body.appendChild(w)}return w}
+function close(){var w=document.getElementById('whoScr');if(w)w.remove()}
+window.whoScreen=function(){PV={scr:'who'};draw()};
+var ICT='<path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="9" cy="8" r="3"/><path d="M15 6h6M15 10h6M17 14h4"/>',ICG='<circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/>';
+function whoH(){var h='<div class="eyebrow">Study Buddy</div><h1>Who is studying?</h1><p class="sub">Pick your profile. Each student’s progress and private notes stay behind their own PIN.</p><div class="pf-tiles">';
+  REG.students.forEach(function(s){h+='<button class="pf-tile" onclick="sbPf.pick(\''+s.id+'\')"><span class="pf-av" style="background:'+s.col+'" aria-hidden="true">'+e_(ini(s.name))+'</span><b>'+e_(s.name)+'</b><small>'+(s.needsNew?'Set a new PIN':s.pin?'PIN protected':'No PIN')+'</small></button>'});
+  h+='<button class="pf-tile" onclick="sbPf.add()"><span class="pf-av pf-plus" aria-hidden="true">+</span><b>Add a student</b><small>New profile</small></button></div>';
+  h+='<button class="wrole" onclick="sbPf.tutor()"><span class="wi"><svg viewBox="0 0 24 24">'+ICT+'</svg></span><span><b>Tutor</b><small>See each student’s shared progress and send reports. Nothing you do is recorded. '+(REG.tutor.pin?'PIN protected.':'You’ll set a PIN first.')+'</small></span></button>';
+  h+='<button class="wrole" onclick="useAs(\'guest\')"><span class="wi"><svg viewBox="0 0 24 24">'+ICG+'</svg></span><span><b>Guest</b><small>Try the app from a blank start. No student’s data is shown and nothing is saved.</small></span></button>';
+  return h}
+function addH(){return'<p><button class="link" onclick="whoScreen()">← Back</button></p><h1>New student</h1><p class="sub">Enter a name, then choose a 4-digit PIN. Their progress starts from zero and is kept apart from everyone else’s.</p><input id="pfName" class="field" maxlength="24" placeholder="Name" aria-label="Student name" autocomplete="off"><button class="btn" style="text-align:center" onclick="sbPf.addGo()">Continue</button>'}
+function rec(){return PV.t?REG.tutor:stu(PV.id)}
+function plen(){return/create/.test(PV.mode)?4:((rec()||{}).pl||0)}
+function pinH(){var r=rec()||{},create=/create/.test(PV.mode),len=plen(),who=PV.t?'Tutor':r.name||'Student';
+  var title=PV.lock?'Locked':create?(PV.mode==='create2'?'Confirm the PIN':(PV.from==='set'?'Choose a new 4-digit PIN':'Choose a 4-digit PIN')):'Enter PIN';
+  var h='';if(!PV.lock)h+='<p><button class="link" onclick="sbPf.back()">← Back</button></p>';
+  h+='<div class="pf-c"><div class="eyebrow">'+e_(who)+'</div><h1>'+title+'</h1>';
+  if(PV.lock)h+='<p class="sub">Study Buddy locked after 40 idle minutes. Enter the PIN to carry on where you were.</p>';
+  else if(create&&PV.mode==='create'&&r.needsNew&&r.pinr&&!PV.t)h+='<p class="sub">Your tutor reset your PIN on '+new Date(r.pinr).toLocaleDateString(undefined,{day:'numeric',month:'short'})+'. Choose a new one that only you know.</p>';
+  else if(create&&PV.t&&REG.tutor.pinr&&!REG.tutor.pin)h+='<p class="sub">The tutor PIN was reset. Choose a new one.</p>';
+  var n=len||Math.max(4,PV.buf.length);h+='<div class="pf-dots" id="pfDots" aria-label="'+PV.buf.length+' digits entered">';for(var i=0;i<n;i++)h+='<i class="'+(i<PV.buf.length?'on':'')+'"></i>';
+  h+='</div><p class="pf-msg" role="alert">'+e_(PV.msg||'')+'</p></div><div class="pf-pad">';
+  '123456789'.split('').forEach(function(d){h+='<button onclick="sbPf.k(\''+d+'\')">'+d+'</button>'});
+  h+='<button class="pf-g" onclick="sbPf.bk()" aria-label="Delete">⌫</button><button onclick="sbPf.k(\'0\')">0</button>'+(len?'<button class="pf-g" onclick="sbPf.clr()">Clear</button>':'<button class="pf-ok" onclick="sbPf.ok()">OK</button>')+'</div>';
+  h+='<div class="pf-links">';
+  if(!create)h+='<button class="link" onclick="sbPf.forgot()">Forgot the PIN?</button>';
+  if(PV.lock)h+='<button class="link" onclick="sbPf.sw()">Switch profile</button>';
+  h+='</div>';
+  if(PV.forgot){if(PV.t){var paused='Resetting it pauses student PIN resets for 24 hours, so a reset tutor PIN can’t be used to take over a student’s profile.';
+      h+='<div class="note">The tutor PIN can be reset here and a new one chosen. '+paused+'<br><button class="btn alt" style="text-align:center;margin-top:8px" onclick="sbPf.treset()">'+(PV.tconf?'Tap again to reset the tutor PIN':'Reset the tutor PIN')+'</button></div>'}
+    else h+='<div class="note">Ask your tutor to reset it from the Tutor screen. They can clear it so you can choose a new one, but they never see it.</div>'}
+  return h}
+function draw(){var w=shell();w.setAttribute('aria-label',PV.scr==='who'?'Who is studying?':PV.scr==='add'?'New student':'PIN');
+  w.innerHTML='<div>'+(PV.scr==='who'?whoH():PV.scr==='add'?addH():pinH())+'</div>';
+  var f=w.querySelector('#pfName');if(f)f.focus()}
+function pin(mode,id,t,extra){PV={scr:'pin',mode:mode,id:id,t:!!t,buf:'',tmp:'',msg:''};if(extra)Object.keys(extra).forEach(function(k){PV[k]=extra[k]});draw()}
+function tutorGo(){pin(REG.tutor.pin?'enter':'create',null,true)}
+function bad(m){PV.msg=m;PV.buf='';draw();var d=document.getElementById('pfDots');if(d)d.classList.add('pf-shake')}
+function done(){var r=rec();if(!r)return whoScreen();var key=PV.t?'t':'s:'+PV.id,p=PV.buf;
+  if(PV.mode==='create'){PV.tmp=p;PV.buf='';PV.mode='create2';PV.msg='';draw();return}
+  if(PV.mode==='create2'){if(p!==PV.tmp){PV.mode='create';PV.tmp='';return bad('The PINs did not match. Start again.')}
+    var wasReset=!PV.t&&r.needsNew&&r.pinr;r.pin=ph(p);r.pl=4;r.needsNew=false;delete r.pinGone;if(!PV.t)r.pinr=0;regSave();setTries(key,{n:0,t:0});
+    if(PV.from==='set'){close();render();showToast('PIN saved.');return}
+    if(PV.t)enterTutor();else enterStudent(PV.id);if(wasReset)setTimeout(function(){showToast('New PIN saved. Your progress is just as you left it.')},2600);return}
+  var T=tries(key),w=Math.ceil((T.t-now())/1000);if(w>0)return bad('Too many tries. Wait '+w+' seconds.');
+  if(p&&ph(p)===r.pin){setTries(key,{n:0,t:0});if(!r.pl){r.pl=p.length;regSave()}
+    if(PV.lock){close();act();return}
+    return PV.t?enterTutor():enterStudent(PV.id)}
+  T.n++;if(T.n>=5){T.n=0;T.t=now()+60000;setTries(key,T);return bad('Too many tries. Wait 60 seconds.')}setTries(key,T);bad('That PIN does not match. '+(5-T.n)+(5-T.n===1?' try':' tries')+' left.')}
+function tries(k){var T=jget('sb_pint2')||{};return T[k]||{n:0,t:0}}
+function setTries(k,o){var T=jget('sb_pint2')||{};T[k]=o;jset('sb_pint2',T)}
+
+/* ---------- idle lock: only for a profile with a PIN (40 minutes for a student or the tutor) ---------- */
+var LAST=now(),LW=0;
+function act(){LAST=now();if(LAST-LW>10e3){LW=LAST;try{R.set('sb_last',String(LAST))}catch(e){}}}
+['pointerdown','keydown','wheel','touchstart','scroll'].forEach(function(n){window.addEventListener(n,act,{passive:true,capture:true})});
+function lockLim(){if(ROLE==='student'){var s=cur();return s&&s.pin?IDLE.student:0}if(ROLE==='tutor')return REG.tutor.pin?IDLE.tutor:0;return 0}
+function lockNow(){try{if(ROLE==='student'&&DOC){clearTimeout(wt);push()}}catch(e){}
+  if(ROLE==='tutor')pin('enter',null,true,{lock:true});else pin('enter',window.SBPID,false,{lock:true})}
+function check(){if(document.getElementById('whoScr'))return;var l=lockLim();if(l&&now()-LAST>l)lockNow()}
+setInterval(check,5000);document.addEventListener('visibilitychange',function(){if(!document.hidden)check()});
+
+document.addEventListener('keydown',function(ev){if(!document.getElementById('whoScr'))return;
+  if(PV.scr==='pin'){if(/^\d$/.test(ev.key)){ev.preventDefault();sbPf.k(ev.key)}else if(ev.key==='Backspace'){ev.preventDefault();sbPf.bk()}else if(ev.key==='Enter'&&!plen()){ev.preventDefault();sbPf.ok()}}
+  else if(PV.scr==='add'&&ev.key==='Enter'){ev.preventDefault();sbPf.addGo()}});
+
+/* ---------- tutor dashboard and reports ---------- */
+var TST={},TLD={},TC=null,RP={id:null,days:7};
+function localSt(id){return jget(id==='main'?'coach1':'coach1:'+id)}
+function loadSt(id){var l=localSt(id);
+  return new Promise(function(res){if(!window.SBDB||!window.SBUID)return res(null);var t=setTimeout(function(){res(null)},8000);
+    SBDB.doc('data/users/'+SBUID+'/'+(id==='main'?'coach':'coach_'+id)).get().then(function(sn){clearTimeout(t);var r=null;if(sn.exists){try{r=JSON.parse(sn.data().s||'{}')}catch(e){}}res(r&&r.ev?r:null)},function(){clearTimeout(t);res(null)})})
+  .then(function(r){var lo=l&&l.ev?l:null;if(!r)return lo;if(!lo)return r;return(+r.sv||0)>=(+lo.sv||0)?r:lo})}
+function withS(st,fn){var S0=S,d=EMPTY();st=st||{};Object.keys(d).forEach(function(k){if(st[k]==null)st[k]=d[k]});S=st;try{return fn()}finally{S=S0}}
+function stats(st,days){return withS(st,function(){var t0=now(),from=t0-days*864e5,ev=S.ev.filter(function(e){return e.ts&&e.ts>=from&&e.k!=='pp'}),ok=ev.filter(function(e){return e.ok}).length;
+  var sec=0,act=0;Object.keys(S.ul||{}).forEach(function(k){var t=new Date(k+'T12:00:00').getTime();if(t0-t<days*864e5){var s=0,v=(S.ul[k]||{}).v||{};Object.keys(v).forEach(function(x){s+=+v[x]||0});sec+=s;if(s>=60)act++}});
+  var dd={};S.ev.forEach(function(e){if(e.ts&&e.ts>=from)dd[dayKey(e.ts)]=1});
+  var by={};ev.forEach(function(e){var k=typeof wkTopic==='function'?wkTopic(e):(e.topic||'Other');by[k]=by[k]||[0,0];by[k][1]++;if(e.ok)by[k][0]++});
+  var rt=function(k){return by[k][0]/by[k][1]},K=Object.keys(by);
+  var weak=K.filter(function(k){return by[k][1]>=2&&rt(k)<.7}).sort(function(a,b){return rt(a)-rt(b)}).slice(0,3);
+  var strong=K.filter(function(k){return by[k][1]>=3&&rt(k)>=.8}).sort(function(a,b){return rt(b)-rt(a)}).slice(0,3);
+  var A=typeof baseAll==='function'?baseAll():{tot:0,parts:0,att:0,done:0},pc=A.tot?Math.round(A.parts/(A.tot*3)*100):0;
+  var last=0;S.ev.forEach(function(e){if(e.ts>last)last=e.ts});
+  var L=S.mk||[];
+  return{sec:sec,act:Math.max(act,Object.keys(dd).length),q:ev.length,acc:ev.length?Math.round(ok/ev.length*100):null,by:by,weak:weak,strong:strong,pc:pc,A:A,last:last,
+    mkNew:L.filter(function(m){return m.t0>=from}).length,mkFix:L.filter(function(m){return m.fx&&m.fx>=from}).length,mkOpen:L.filter(function(m){return!m.fx}).length}})}
+function mins(s){return typeof ulMin==='function'?ulMin(s):Math.round(s/60)+' min'}
+function fd(t){return new Date(t).toLocaleDateString(undefined,{day:'numeric',month:'short'})}
+function repText(s,st,days){var x=stats(st,days),t='Study Buddy progress report\nStudent: '+s.name+'\nPeriod: last '+days+' days ('+fd(now()-days*864e5)+' – '+fd(now())+')\n\n';
+  t+='Time studied: '+(x.sec?mins(x.sec):'none logged')+', active on '+x.act+' day'+(x.act===1?'':'s')+'\n';
+  t+='Answers checked: '+x.q+(x.acc!=null?' ('+x.acc+'% right)':'')+'\n';
+  t+='Maths syllabus covered: '+x.pc+'% ('+x.A.att+' of '+x.A.tot+' example types attended, '+x.A.done+' concepts complete)\n';
+  var ch=Object.keys(x.by).sort(function(a,b){return x.by[a][0]/x.by[a][1]-x.by[b][0]/x.by[b][1]});
+  if(ch.length){t+='\nBy chapter (weakest first):\n';ch.slice(0,10).forEach(function(k){t+='• '+k+': '+x.by[k][0]+'/'+x.by[k][1]+'\n'})}
+  t+='\nGoing well: '+(x.strong.join(', ')||(x.q>=6?'no chapter above 80% yet':'not enough answers yet'))+'\nNeeds work: '+(x.weak.join(', ')||'nothing stands out')+'\n';
+  t+='Mistakes: '+x.mkNew+' new, '+x.mkFix+' fixed, '+x.mkOpen+' still open\n';
+  t+='\nSuggested focus for the next session: '+(x.weak[0]||(x.q?'mixed revision':'getting started with a first practice round'))+'.';
+  return t}
+function fetchSt(id){if(TLD[id])return;TLD[id]=1;loadSt(id).then(function(st){TST[id]={st:st||{},at:now()};TLD[id]=0;if(ROLE==='tutor'&&(view==='tut'||view==='trep'))render()})}
+function tutView(){var h='<h1>Students</h1><p class="sub">Each student chooses whether to share. Private notes are never shown here.</p>';
+  var c=cur();if(c)h+='<div class="rbar"><span>Viewing <b>'+e_(c.name)+'</b> in the app.</span><button class="link" onclick="sbPf.tclear()">Stop viewing</button></div>';
+  var paused=REG.tutor.pinr&&now()-REG.tutor.pinr<864e5;
+  REG.students.forEach(function(s){var d=TST[s.id];if(s.share&&!d)fetchSt(s.id);
+    var x=s.share&&d?stats(d.st,7):null;
+    h+='<div class="card pf-stu" style="border-left-color:'+s.col+'"><div class="setrow"><b>'+e_(s.name)+'</b><span class="pf-idle">'+(x&&x.last?'Active '+mkWhen(x.last):x?'Not started yet':'')+'</span></div>';
+    if(s.share){if(!x)h+='<p class="sub" style="margin:6px 0">Loading progress…</p>';
+      else{h+='<div class="pf-meta"><span>'+x.pc+'% maths covered</span><span>'+(x.sec?mins(x.sec):'0 min')+' this week</span><span>'+(x.acc!=null?x.acc+'% right':'no answers this week')+'</span></div>';
+        h+=x.weak.map(function(k){return'<span class="mtag bad">'+e_(k)+'</span>'}).join('')+x.strong.map(function(k){return'<span class="mtag ok">'+e_(k)+'</span>'}).join('')}
+      h+='<div class="row2"><button class="btn" onclick="sbPf.topen(\''+s.id+'\')">Open progress</button><button class="btn alt" onclick="sbPf.trep(\''+s.id+'\')">Make report</button></div>'}
+    else h+='<p class="sub" style="margin:6px 0">Not shared. '+e_(s.name)+' has not turned on sharing in Settings, so nothing is shown.</p>';
+    if(s.pin)h+=paused?'<p class="sub" style="margin:8px 0 0;font-size:.82rem">PIN resets are paused until '+new Date(REG.tutor.pinr+864e5).toLocaleString(undefined,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+' because the tutor PIN was reset.</p>':
+      '<button class="btn alt" style="margin-top:8px'+(TC===s.id?';color:var(--bad);border-color:var(--bad)':'')+'" onclick="sbPf.treset1(\''+s.id+'\')">'+(TC===s.id?'Tap again to reset '+e_(s.name)+'’s PIN':'Reset PIN')+'</button>';
+    else if(s.needsNew)h+='<p class="sub" style="margin:8px 0 0;font-size:.82rem">PIN reset. '+e_(s.name)+' will choose a new one next time.</p>';
+    h+='</div>'});
+  h+='<button class="btn alt" style="text-align:center" onclick="sbPf.tpin()">Change tutor PIN</button>';
+  app.innerHTML=h}
+function repView(){var s=stu(RP.id);if(!s||!s.share){view='tut';return tutView()}var d=TST[s.id];
+  var h='<div class="pf-rep"><p><button class="link" onclick="goView(\'tut\')">← Students</button></p><h1>Report for '+e_(s.name)+'</h1><p class="sub">Send it to a parent, the student or anyone you choose. Nothing is sent until you tap a button.</p>';
+  h+='<div class="seg" role="tablist">'+[7,30].map(function(n){return'<button role="tab" aria-selected="'+(RP.days===n)+'" onclick="sbPf.days('+n+')">Last '+n+' days</button>'}).join('')+'</div>';
+  if(!d){fetchSt(s.id);app.innerHTML=h+'<p class="sub">Loading progress…</p></div>';return}
+  var t=repText(s,d.st,RP.days),q=encodeURIComponent(t);
+  h+='<pre>'+e_(t)+'</pre><a class="btn wa" href="https://wa.me/?text='+q+'" target="_blank" rel="noopener">'+(typeof WAI!=='undefined'?WAI:'')+'Share on WhatsApp</a>';
+  h+='<div class="row2"><button class="btn alt" onclick="sbPf.copy()">Copy text</button><a class="btn alt" href="mailto:?subject='+encodeURIComponent('Study Buddy report: '+s.name)+'&body='+q+'">Email</a></div></div>';
+  app.innerHTML=h}
+
+/* ---------- Settings: the student's profile card, or the tutor's PIN card ---------- */
+function setCards(){if(view!=='set'||document.getElementById('pfCard'))return;var rc=document.getElementById('roleCard');if(!rc)return;var c=document.createElement('div');c.className='card';c.id='pfCard';
+  if(ROLE==='student'){var s=cur();if(!s)return;
+    c.innerHTML='<h2>Your profile</h2><div class="ask"><input id="pfNm" maxlength="24" value="'+e_(s.name)+'" aria-label="Your name"><button class="chipb" onclick="sbPf.rename()">Save name</button></div>'+
+     '<div class="setrow" style="margin-top:14px"><div><b>Share progress with my tutor</b><small>The tutor sees your scores, chapters, time spent and mistakes, and can open your progress to look around. Private notes stay private; only notes you mark as shared are shown.</small></div><button class="tog" role="switch" aria-label="Share progress with my tutor" aria-checked="'+!!s.share+'" onclick="sbPf.share()"><i></i></button></div>'+
+     '<div class="setrow" style="margin-top:14px"><div><b>PIN</b><small>'+(s.pin?'On. Study Buddy locks after 40 idle minutes and asks for it again.':'Off. Anyone using this device can open your profile and private notes.')+'</small></div></div>'+
+     '<div class="row2"><button class="btn alt" onclick="sbPf.chpin()">'+(s.pin?'Change PIN':'Set a PIN')+'</button>'+(s.pin?'<button class="btn alt" onclick="sbPf.nopin()">Remove PIN</button>':'')+'</div>'}
+  else if(ROLE==='tutor')c.innerHTML='<h2>Tutor PIN</h2><p class="sub" style="margin:2px 0 8px">'+(REG.tutor.pin?'On. The tutor screen locks after 40 idle minutes.':'Off.')+'</p><button class="btn alt" onclick="sbPf.tpin()">'+(REG.tutor.pin?'Change tutor PIN':'Set a tutor PIN')+'</button>';
+  else return;
   rc.insertAdjacentElement('afterend',c)}
-function notice(){if(view!=='today'||ROLE!=='student'||!S.pinr||document.getElementById('pinNote'))return;var d=document.createElement('div');d.className='note';d.id='pinNote';
-  d.innerHTML='<b>The student PIN was removed</b> on '+new Date(S.pinr).toLocaleString(undefined,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+' from the sign-in screen. If that was not you, set a new one in Settings. <button class="link" onclick="pinSeen()">OK</button>';
-  var h1=app.querySelector('h1');(h1&&h1.parentNode.classList.contains('tdhd')?h1.parentNode:app.firstChild).insertAdjacentElement('beforebegin',d)}
-var _r=render;render=function(){_r();try{if(ROLE==='student'&&S.pin&&!AUTH){window.ROLE='pending';whoScreen();return}card();notice()}catch(e){}};
-/* locked at launch when the student has asked for that */
-if(ROLE==='student'&&pinOf()&&S.pinl){AUTH=false;window.ROLE='pending';whoScreen()}
+/* the old single PIN lived inside the student's progress; it moves to the first profile once */
+function migrate(){if(window.SBPID!=='main'||!S||!S.pin)return;var m=stu('main');if(m&&!m.pin&&!m.pinGone&&!m.needsNew){m.pin=S.pin;m.pl=0;regSave()}
+  if(ROLE==='student'){delete S.pin;delete S.pinl;delete S.pinr;save()}}
+
+var _r=render;render=function(){
+  if(typeof GRP!=='undefined'&&GRP.set){var hasT=GRP.set[0]&&GRP.set[0][0]==='tut';if(ROLE==='tutor'&&!hasT)GRP.set=[['tut','Students']].concat(GRP.set);else if(ROLE!=='tutor'&&hasT)GRP.set=GRP.set.slice(1)}
+  if(typeof SECN!=='undefined')SECN.tut='Students';
+  if(ROLE!=='tutor'&&(view==='tut'||view==='trep'))view='today';
+  if(view==='tut'||view==='trep'){try{if(typeof stStop==='function')stStop();applyPrefs()}catch(e){}
+    var vv=view;view='tut';var g=grpOf(view);document.querySelectorAll('.tab').forEach(function(b){b.setAttribute('aria-current',b.getAttribute('data-g')===g)});try{subBar()}catch(e){}view=vv;
+    if(view==='tut')tutView();else repView();return}
+  _r();try{migrate();setCards()}catch(e){}};
+
+window.sbPf={
+  pick:function(id){var s=stu(id);if(!s)return;if(s.needsNew)return pin('create',id);if(s.pin)return pin('enter',id);enterStudent(id)},
+  add:function(){PV={scr:'add'};draw()},
+  addGo:function(){var f=document.getElementById('pfName'),n=(f&&f.value||'').trim().slice(0,24);if(!n){if(f)f.focus();return}
+    var id='s'+now().toString(36);REG.students.push({id:id,name:n,col:COLS[REG.students.length%COLS.length],pin:null,pl:0,share:false,needsNew:true});regSave();
+    try{var e=EMPTY();e.int='';e.sv=now();jset('coach1:'+id,e)}catch(x){}
+    pin('create',id)},
+  tutor:function(){tutorGo()},
+  k:function(d){if(PV.scr!=='pin'||PV.buf.length>=8)return;PV.buf+=d;PV.msg='';var l=plen();draw();if(l&&PV.buf.length===l)done()},
+  bk:function(){PV.buf=PV.buf.slice(0,-1);draw()},clr:function(){PV.buf='';draw()},
+  ok:function(){if(PV.buf.length<4){PV.msg='Enter at least 4 digits.';draw();return}done()},
+  back:function(){if(PV.from==='set'){close();return}whoScreen()},
+  forgot:function(){PV.forgot=!PV.forgot;PV.tconf=0;draw()},
+  sw:function(){whoScreen()},
+  treset:function(){if(!PV.tconf){PV.tconf=1;draw();return}REG.tutor={pin:null,pl:0,pinr:now()};regSave();setTries('t',{n:0,t:0});pin('create',null,true)},
+  topen:function(id){var s=stu(id);if(!s||!s.share)return;setPid(id);ROLE='pending';_use('tutor')},
+  tclear:function(){enterTutor()},
+  trep:function(id){RP={id:id,days:7};TST[id]=null;view='trep';render();window.scrollTo(0,0)},
+  days:function(n){RP.days=n;render()},
+  copy:function(){var s=stu(RP.id),d=s&&TST[s.id];if(!d)return;cpText(repText(s,d.st,RP.days),'Report copied.')},
+  treset1:function(id){if(REG.tutor.pinr&&now()-REG.tutor.pinr<864e5)return;if(TC!==id){TC=id;render();return}TC=null;var s=stu(id);if(!s)return;
+    s.pin=null;s.pl=0;s.needsNew=true;s.pinr=now();if(id==='main')s.pinGone=1;regSave();setTries('s:'+id,{n:0,t:0});render();showToast(s.name+' will choose a new PIN next time. Their progress is untouched.')},
+  tpin:function(){pin('create',null,true,{from:'set'})},
+  chpin:function(){pin('create',window.SBPID,false,{from:'set'})},
+  nopin:function(){var s=cur();if(!s||!confirm('Remove your PIN? Anyone using this device will be able to open your profile.'))return;s.pin=null;s.pl=0;if(s.id==='main')s.pinGone=1;regSave();render();showToast('PIN removed.')},
+  rename:function(){var s=cur(),f=document.getElementById('pfNm'),n=(f&&f.value||'').trim().slice(0,24);if(!s||!n)return;s.name=n;regSave();render();showToast('Name saved.')},
+  share:function(){var s=cur();if(!s)return;s.share=!s.share;regSave();render();showToast(s.share?'Sharing with your tutor is on.':'Sharing is off. The tutor sees nothing of your progress.')}
+};
+
+/* ---------- at launch: a remembered student opens straight in, unless their PIN is due ---------- */
+(function(){var s=cur(),last=+(R.get('sb_last')||0);
+  if(ROLE==='student'){if(!s||s.needsNew)ROLE='pending';
+    else if(s.pin&&now()-last>IDLE.student){pin('enter',s.id,false,{lock:true});return}}
+  if(ROLE==='pending')whoScreen()})();
 try{render()}catch(e){}
 })();
-/*LOCK-END*/
+/*PROFILES-END*/
 </script>
+
 </body></html>
