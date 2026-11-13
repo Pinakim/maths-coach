@@ -24,10 +24,17 @@ The `main` branch on GitHub is the master copy. The artifact is its published fo
    - Laptop: `git pull --ff-only origin main`.
    - Read the live artifact and compare it with `study-buddy.html` at `HEAD`. If the artifact is newer, it was published without a commit: commit that version first, then carry on.
 2. **Work.** Edit `study-buddy.html` and test it.
-3. **Finish: do both, together.**
-   - Commit and push to `main`, with a message saying what changed for the user.
+3. **Finish: do both, together, in this order.**
    - Publish `study-buddy.html` to the **same** artifact link above. Never publish a new artifact, and don't change its capabilities or sharing.
+   - Run `bash .claude/hooks/mark-published.sh`. It records the published version in `.published-sha`.
+   - Commit everything, including `.published-sha`, with a message saying what changed for the user, then push to `main`.
 4. Only one device works at a time. Finish step 3 before the user switches devices. If a push is rejected because `main` moved, pull, merge, re-test, then push and publish.
+
+## Automatic checks (hooks in `.claude/settings.json`)
+
+- **Session start** (`session-start.sh`): pulls `main` if there are no uncommitted changes, then reports the commit, any local or unpushed work, and whether `study-buddy.html` matches `.published-sha`. Read that report before starting.
+- **End of each reply** (`finish-check.sh`): if there are uncommitted, unpushed or unpublished changes, you're asked once to finish step 3. When the user is still reviewing or said "don't publish yet", don't finish; just tell them in one line what's left.
+- The hooks only check and remind. They never commit, push or publish on their own.
 
 ## Editing the file
 

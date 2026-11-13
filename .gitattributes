@@ -1,0 +1,2 @@
+*.sh text eol=lf
+.published-sha text eol=lf
