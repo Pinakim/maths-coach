@@ -8,6 +8,7 @@ This repo is worked on from two devices: a phone (Claude Code on claude.ai/code 
   **https://claude.ai/artifact/Mg1ofXxuYQaYbqB14ZzXqQ**
 - `index.html`: the older "Maths Coach Practice" page. Leave it alone unless the user asks.
 - The user sometimes types "Sutu Buddy"; that means Study Buddy.
+- `my-syllabus-11.md`: the syllabus for the school-exam subjects (maths, economics, political science, sociology, English papers), as a text reference. Check it for chapter scope before building exam content.
 
 ## GitHub account: Pinakim only
 
