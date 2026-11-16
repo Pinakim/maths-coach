@@ -543,7 +543,7 @@ html.lgtext{font-size:112.5%}html.lgtext body{font-size:1.06rem}
 <button class="tab" data-g="set" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>Settings</button>
 </nav>
 <header id="sub" class="subbar" aria-label="Sections"></header>
-<script>/*PROFILE-KEYS: which student's copy the device storage and cloud doc point at; see PROFILES at the end*/(function(){
+<script>window.__boot=1;window.sbLoadFail=function(){if(window.__sbF)return;window.__sbF=1;var a=document.getElementById("app");if(a)a.innerHTML='<div style="padding:40px 20px;text-align:center;font:15px sans-serif">Study Buddy did not finish loading.<br><br><button onclick="location.reload()" style="font:inherit;padding:10px 18px;border-radius:10px">Try again</button></div>'}</script><script>/*PROFILE-KEYS: which student's copy the device storage and cloud doc point at; see PROFILES at the end*/(function(){
 var P='main';try{P=localStorage.getItem('sb_pid')||'main'}catch(e){}if(!/^[a-z0-9]{1,24}$/.test(P))P='main';window.SBPID=P;
 var MAP={coach1:1,coach1_syn:1,coachNoteImg:1};function k(x){return MAP[x]&&window.SBPID!=='main'?x+':'+window.SBPID:x}
 var g=Storage.prototype.getItem,s=Storage.prototype.setItem,r=Storage.prototype.removeItem;
@@ -552,7 +552,7 @@ window.sbDocName=function(){return window.SBPID!=='main'?'coach_'+window.SBPID:'
 window.sbRaw={get:function(x){return g.call(localStorage,x)},set:function(x,v){return s.call(localStorage,x,v)},del:function(x){return r.call(localStorage,x)}};
 })()</script>
 <script>(function(){function m(){var n=document.getElementById('topnav');if(n)document.documentElement.style.setProperty('--navh',n.offsetHeight+'px')}m();window.addEventListener('resize',m);window.addEventListener('load',m)})()</script>
-<main id="app"></main>
+<main id="app"><div style="padding:48px 20px;text-align:center;color:#666;font:15px -apple-system,BlinkMacSystemFont,sans-serif">Opening Study Buddy…</div></main>
 <style>
 /* History: two lanes of colour (India, World) on one 1790–2000 scale; stories set in a book face */
 :root{--hin:#c2551a;--hin-soft:#fbe9df;--hwd:#1f6f8b;--hwd-soft:#e0f0f6;--hink:#2a2620}
@@ -1685,6 +1685,7 @@ function subBar(){var g=grpOf(view),T=GRP[g],el=document.getElementById('sub');G
     return'<button role="tab" aria-selected="'+on+'" onclick="goView(\''+t[0]+'\')">'+t[1]+(n?' <small>'+n+'</small>':'')+'</button>'}).join('')+'</div>':'<div class="subt">'+T[0][1]+'</div>';
   var open=mkList().filter(function(m){return!m.fx}).length,bd=document.getElementById('revBadge');if(bd){bd.hidden=!open;bd.textContent=open>99?'99+':open}}
 function render(){
+  if(window.__boot)return;
   if(typeof stStop==='function')stStop();applyPrefs();
   var g=grpOf(view);document.querySelectorAll('.tab').forEach(function(b){b.setAttribute('aria-current',b.getAttribute('data-g')===g)});subBar();
   if(view==='today')todayView();else if(view==='practice')home();else if(view==='check')checkView();else if(view==='story')storyView();else if(view==='ex')exView();else if(view==='base')baseView();else if(view==='pp')ppView();else if(view==='cb')cbView();else if(view==='mk')mkView();else if(view==='st')stView();else if(view==='mc')mcView();else if(view==='nt')ntView();else if(view==='lz')lzView();else if(view==='sj_his')hisView();else if(view.indexOf('sj_')===0)sjView(view.slice(3));else if(view==='th')thView();else if(view==='tl')tlView();else if(view==='set')setView();else if(view==='log')logView();else spotsView();
@@ -1701,7 +1702,7 @@ function home(){
   h+='<div class="row2"><button class="btn alt" onclick="start(\'a\')">Mixed (all chapters)</button><button class="btn alt" onclick="start(\'w\')"'+(wk.length?'':' disabled')+'>Weak spots'+(wk.length?' ('+wk.length+')':'')+'</button></div>';
   app.innerHTML=h;
 }
-var GUIDE='https://claude.ai/artifact/5MNNsWaTsZ6UXGwpeTdnmT';
+var GUIDE='https://claude.ai/artifact/9DFxeZkykCrgsnaUP5jEmy';
 function todayView(){
   var wk=weakList(),L=mcAll(),hot=L.filter(function(m){return mcHeat(m)>=3}).length,star=L.filter(function(m){return m.st}).length,open=mkList().filter(function(m){return!m.fx}).length;
   var h='<div class="tdhd"><h1>Today</h1><span class="tdbtns">'+(S.hideqt?'':'<button class="guideb qtb" onclick="qtShow()">💬 Quote</button>')+'<a class="guideb" href="'+GUIDE+'" target="_blank" rel="noopener">📖 Guide</a></span></div><p class="sub">One small step at a time. Pick anything below, or tap <b>Ask</b> whenever you want Claude.</p>';
@@ -6952,6 +6953,21 @@ X2('lp','Forming and solving a word problem',3,
   an:'Packing for a trip with limits on both weight and volume: the best choice usually uses up both limits at the same time.',
   ld:['Define variables, write the objective and constraints, graph, evaluate at corners.','A linear objective over a polygon attains its maximum and minimum at vertices.','A linear inequality divides the plane into two half-planes.'],
   sib:'A baker has 10 kg of flour and 6 hours. A cake needs 2 kg and 1 hour, and earns ₹50; a loaf needs 1 kg and 1 hour, and earns ₹30. How many of each maximise the earnings?',fb:[4,2,2,5]});
+/* ---------- extra worked examples aimed at the known weak spots (added after all others so saved ids stay the same) ---------- */
+X2("tg","Allied angles: sign first, then the function",1,"Find the value of sin 150° + cos 240° + tan 315°.","−1",["Each angle is a well-known angle moved into another quadrant. Which quadrant is each one in?","Write each angle as 180° ± θ or 360° − θ. Decide the sign from the quadrant before anything else.","150° = 180° − 30° (Q2, sin +), 240° = 180° + 60° (Q3, cos −), 315° = 360° − 45° (Q4, tan −)."],["{{Sign first}}: in Q1 all are positive, Q2 only sin, Q3 only tan, Q4 only cos.","{{180° or 360° keeps the function}}: sin stays sin, cos stays cos. Only 90° or 270° swaps sin and cos."],["150° = 180° − 30°, in Q2 where sin is positive: sin 150° = sin 30° = {{1/2}}.","240° = 180° + 60°, in Q3 where cos is negative: cos 240° = −cos 60° = {{−1/2}}.","315° = 360° − 45°, in Q4 where tan is negative: tan 315° = −tan 45° = {{−1}}.","Add: 1/2 − 1/2 − 1 = {{−1}}."],{"k":"rows","r":[["150° = 180° − 30°","Q2: sin + → +1/2"],["240° = 180° + 60°","Q3: cos − → −1/2"],["315° = 360° − 45°","Q4: tan − → −1"]],"hl":1},["Place each angle in its quadrant","Fix the sign","Keep or swap the function","Use the known value"],"Every angle on the circle is a familiar angle wearing a disguise. The quadrant tells you the sign; whether you moved from 90° or 180° tells you whether the function changes. Two small decisions, made in that order, and no table is needed.",{"g":"One number: the sum of three trig values.","gw":"Each value is a known value with a sign; once each is known, adding is easy.","w":["Name the familiar angle and the quadrant together; the quadrant carries the sign.","Same two decisions for 240°: Q3, where only tan is positive.","And for 315°: Q4, where only cos is positive.","Now all three are plain numbers, so add."],"an":"Like reading a clock in a mirror: you know the time, you only have to decide which way round it is.","ld":["Reference angle, then sign by quadrant, then swap or keep the function.","A ratio depends only on where the angle ends on the circle.","The definitions sin = y/r, cos = x/r, tan = y/x on a circle."],"sib":"Find cos 120° − sin 210° + tan 135°."});
+X2("tg","Double angle from tan",2,"If tan x = 1/2, find tan 2x and sin 2x.","tan 2x = 4/3, sin 2x = 4/5",["Is there a double-angle formula written only in terms of tan x?","tan 2x = 2 tan x / (1 − tan²x) and sin 2x = 2 tan x / (1 + tan²x).","Put t = 1/2: the bottoms are 1 − 1/4 and 1 + 1/4."],["{{All in tan}}: tan 2x = 2t/(1 − t²), sin 2x = 2t/(1 + t²), cos 2x = (1 − t²)/(1 + t²).","Using these avoids finding sin x and cos x separately."],["tan 2x = 2(1/2) / (1 − 1/4) = 1 / (3/4) = {{4/3}}.","sin 2x = 2(1/2) / (1 + 1/4) = 1 / (5/4) = {{4/5}}.","Check: cos 2x = (1 − 1/4)/(1 + 1/4) = 3/5, and (4/5)/(3/5) = 4/3. Consistent."],{"k":"rows","r":[["t = tan x","1/2"],["tan 2x = 2t/(1 − t²)","1/(3/4) = 4/3"],["sin 2x = 2t/(1 + t²)","1/(5/4) = 4/5"]],"hl":1},["Name t = tan x","Pick the t-formula","Substitute carefully","Cross-check"],"If you are given one ratio, stay in that ratio. The t-formulas let every double angle be written in tan alone, so there is nothing to look up and nothing to get wrong on the way.",{"g":"tan 2x and sin 2x from tan x alone.","gw":"Staying in tan avoids finding sin x and cos x and their signs.","w":["Use the tan-only formula so nothing else is needed.","The same t gives sin 2x through the 1 + t² formula.","A third formula checks that the two answers agree."],"an":"Like converting currencies through one base rate rather than many separate rates.","ld":["Write t = tan x and use the t-formulas.","Every double angle can be written in tan of the single angle.","sin 2x = 2 sin x cos x and cos 2x = cos²x − sin²x."],"sib":"If tan x = 3/4, find tan 2x and cos 2x."});
+X2("te","Principal solutions on the circle",1,"Find the solutions of tan x = −1/√3 for 0 ≤ x < 2π.","x = 5π/6 and x = 11π/6",["Ignore the sign first: which acute angle has tan = 1/√3?","The acute angle is π/6. In which quadrants is tan negative?","Tan is negative in Q2 and Q4. Q2 angle = π − π/6, Q4 angle = 2π − π/6."],["{{Acute angle, then quadrants}}: the same two-step move as allied angles.","Tan repeats every π, so the two answers are π apart."],["tan(π/6) = 1/√3, so the reference angle is {{π/6}}.","Tan is negative in Q2 and Q4.","Q2: π − π/6 = {{5π/6}}. Q4: 2π − π/6 = {{11π/6}}.","Check: 11π/6 − 5π/6 = π, as expected for tan."],{"k":"plane","x":[-1.4,1.4],"y":[-1.4,1.4],"el":[{"ci":[0,0,1],"c":5,"dash":1},{"seg":[[0,0],[-0.866,0.5]],"c":1,"w":3},{"seg":[[0,0],[0.866,-0.5]],"c":1,"w":3},{"p":[-0.866,0.5],"l":"5π/6","c":1},{"p":[0.866,-0.5],"l":"11π/6","c":1}]},["Find the acute angle","Choose the quadrants","Write each angle","Check the gap"],"An equation like tan x = k asks: where on the circle does this happen? Find the angle once, then let the quadrant signs tell you every place it happens again.",{"g":"Every angle in [0, 2π) with tan x = −1/√3.","gw":"An equation asks for all the places, not just one.","w":["Drop the sign to find the familiar angle.","The sign tells you which two quadrants to use.","Turn the reference angle into each true angle.","Tan repeats every π, so the answers must differ by π."],"an":"Finding every seat in a stadium with the same view: one seat, then its mirror images.","ld":["Reference angle, then quadrants by sign.","tan has period π.","tan = y/x on the unit circle."],"sib":"Find the solutions of cos x = −1/2 in [0, 2π)."});
+X2("te","Sum to product to solve",3,"Solve sin 2x − sin 4x + sin 6x = 0.","x = nπ/4 or x = nπ ± π/6, n ∈ Z",["Two of these three terms pair up nicely. Which two have a sum that gives sin 4x?","sin 6x + sin 2x = 2 sin 4x cos 2x. Now the equation has a common factor.","You get sin 4x (2 cos 2x − 1) = 0. Solve each factor equal to zero."],["{{Pair the outer terms}} so the middle one becomes a common factor.","{{Product = 0}}: set each factor to zero. Do not divide by sin 4x, or answers are lost."],["sin 6x + sin 2x = 2 sin 4x cos 2x.","Equation: 2 sin 4x cos 2x − sin 4x = 0, so {{sin 4x (2 cos 2x − 1) = 0}}.","sin 4x = 0 gives 4x = nπ, so {{x = nπ/4}}.","cos 2x = 1/2 gives 2x = 2nπ ± π/3, so {{x = nπ ± π/6}}."],{"k":"tree","root":"sin 4x (2 cos 2x − 1) = 0","kids":["sin 4x = 0 → x = nπ/4","cos 2x = 1/2 → x = nπ ± π/6"]},["Pair two terms","Factor out the common part","Set each factor to zero","Write both families"],"Zero is special: a product is zero only when a factor is. So the aim is always a product. Never divide by something that might be zero, or you throw away solutions.",{"g":"Two families of solutions, none lost.","gw":"A product is zero only when a factor is, so each factor gives a family.","w":["Pairing the outer terms makes sin 4x appear.","Now sin 4x is a common factor.","First factor zero.","Second factor zero, both signs."],"an":"Two switches in series: the light is off if either switch is off.","ld":["Make a product, then set each factor to zero.","ab = 0 ⇒ a = 0 or b = 0.","Sum to product formulas."],"sib":"Solve cos x + cos 3x = 0."});
+X2("qe","The formula, with −b in brackets",1,"Solve 2x² − 7x + 3 = 0 using the quadratic formula.","x = 3 or x = 1/2",["Write down a, b and c, with their signs, before anything else.","a = 2, b = −7, c = 3. The formula starts with −b. What is −(−7)?","D = b² − 4ac = 49 − 24 = 25. Then x = (7 ± 5)/4."],["{{Name a, b, c with signs}} on a line of their own.","{{−b means change the sign of b}}: here −(−7) = +7. Brackets stop the slip."],["a = 2, b = −7, c = 3.","D = (−7)² − 4(2)(3) = 49 − 24 = {{25}}.","x = (−(−7) ± √25) / (2 × 2) = (7 ± 5)/4.","x = 12/4 = {{3}} or x = 2/4 = {{1/2}}.","Check x = 3: 18 − 21 + 3 = 0."],{"k":"plane","x":[-1,4.5],"y":[-4,6],"el":[{"fn":"2*x*x-7*x+3","c":1,"w":3},{"p":[0.5,0],"l":"1/2","c":2},{"p":[3,0],"l":"3","c":2}]},["Name a, b, c with signs","Find the discriminant","Substitute with brackets","Finish both roots and check"],"The formula never fails, but it is only as good as what you put into it. Naming a, b and c first, with their signs, removes almost every slip before it happens.",{"g":"Both roots of 2x² − 7x + 3 = 0.","gw":"A quadratic usually has two roots; both are needed.","w":["Naming a, b, c with signs stops the −b slip before it happens.","The discriminant tells you what kind of roots to expect.","Substitute with brackets so −(−7) becomes +7.","Split the ± into the two roots.","Put one root back into the equation to check."],"an":"Filling a form: write each field in its own box before doing anything with it.","ld":["Name a, b, c; find D; substitute with brackets.","Completing the square gives the formula.","(x + k)² ≥ 0 and the meaning of square roots."],"sib":"Solve 3x² + 5x − 2 = 0."});
+X2("qe","Complex roots",1,"Solve x² + x + 1 = 0.","x = (−1 ± i√3)/2",["Find the discriminant. What does a negative discriminant mean?","D = 1 − 4 = −3. The roots are complex, with √(−3) = i√3.","x = (−1 ± i√3)/2."],["{{D < 0}}: no real roots, two complex roots that are conjugates.","√(−k) = i√k for k > 0."],["a = 1, b = 1, c = 1.","D = 1 − 4 = {{−3}}, so the roots are complex.","x = (−1 ± √(−3))/2 = {{(−1 ± i√3)/2}}.","Check: sum = −1 = −b/a and product = (1 + 3)/4 = 1 = c/a."],{"k":"plane","x":[-2.5,1.5],"y":[-0.5,3.5],"el":[{"fn":"x*x+x+1","c":1,"w":3},{"tx":[-1.6,0.35],"l":"never touches the x-axis","c":2}]},["Name a, b, c","Find D","Use i for √(negative)","Check sum and product"],"A parabola that never touches the x-axis still has roots; they just are not on the real line. Complex numbers are where those roots live.",{"g":"Two complex roots.","gw":"A negative discriminant still gives roots, in the complex numbers.","w":["Name a, b, c.","D tells you the roots are not real.","√(−3) is i√3.","Sum and product confirm the roots."],"an":"An address that is not on this street is still an address, just on another road.","ld":["Formula, with √(−k) = i√k.","Complex roots of real quadratics come in conjugate pairs.","i² = −1."],"sib":"Solve x² − 2x + 5 = 0."});
+X2("qe","Equal roots: both values of k",2,"Find k so that x² + kx + 9 = 0 has equal roots.","k = 6 or k = −6",["Equal roots means the discriminant takes which value?","D = k² − 36 = 0. How many values of k square to 36?","k² = 36 gives two values. Keep both."],["{{Equal roots ⇔ D = 0}}.","{{k² = 36 ⇒ k = ±6}}: a square root always has two cases."],["D = k² − 4(1)(9) = k² − 36.","Equal roots: k² − 36 = 0, so k² = 36.","{{k = 6 or k = −6}}.","Check k = −6: x² − 6x + 9 = (x − 3)², a repeated root."],{"k":"nline","r":[-8,8],"pts":[[-6,"k = −6",1],[6,"k = 6",1],[0,"0",3]]},["Set D = 0","Solve for k","Keep both signs","Check one value"],"Whenever you take a square root, two numbers answer. Writing ± the moment it appears is the habit that keeps the second case from slipping away.",{"g":"Every k giving equal roots.","gw":"Missing one value of k loses marks and the idea.","w":["Write D in terms of k.","Equal roots means D = 0.","Two numbers square to 36.","A check confirms the repeated root."],"an":"Asking which number squares to 36 is like asking who is 6 steps from the door: someone on each side.","ld":["Set D = 0 and keep ±.","D = 0 ⇔ the parabola touches the axis.","u² = k ⇒ u = ±√k."],"sib":"Find k if kx² − 4x + 1 = 0 has equal roots."});
+X2("rf","Cartesian product and number of relations",1,"If A = {1, 2} and B = {3, 4}, write A × B and find how many relations there are from A to B.","A × B = {(1,3), (1,4), (2,3), (2,4)}; 16 relations",["A × B pairs every element of A with every element of B. How many pairs?","There are 2 × 2 = 4 pairs. A relation is any subset of A × B.","A set with 4 elements has 2⁴ subsets."],["{{n(A × B) = n(A) × n(B)}}.","{{Relations from A to B = subsets of A × B}}, so there are 2^(n(A)·n(B))."],["A × B = {(1,3), (1,4), (2,3), (2,4)}.","n(A × B) = 4.","Number of relations = 2⁴ = {{16}}."],{"k":"rows","r":[["1","(1,3), (1,4)"],["2","(2,3), (2,4)"],["4 pairs","2⁴ = 16 relations"]],"hl":2},["List every pair","Count the pairs","Relation = subset","Count subsets"],"A relation is a choice: for each possible pair, include it or not. Four yes-or-no choices make 2 × 2 × 2 × 2 relations.",{"g":"The full A × B and the number of relations.","gw":"Counting needs the full list of pairs first.","w":["Pair every element of A with every element of B.","Count the pairs.","Each pair is in or out of a relation."],"an":"Two shirts and two trousers make four outfits; each outfit can be packed or not.","ld":["List pairs, count, then 2 to that power.","A relation is a subset of A × B.","A set of n elements has 2ⁿ subsets."],"sib":"If n(A) = 3 and n(B) = 2, how many relations are there from A to B?"});
+X2("rf","Composition: order matters",2,"If f(x) = x² + 1 and g(x) = 2x − 3, find f(g(2)) and g(f(2)).","f(g(2)) = 2, g(f(2)) = 7",["Work from the inside out. In f(g(2)), which function acts first?","g acts first: g(2) = 1. Then apply f to that.","For g(f(2)), f acts first: f(2) = 5."],["{{Inside first}}: f(g(x)) means do g, then f.","In general f(g(x)) ≠ g(f(x))."],["g(2) = 2(2) − 3 = 1, so f(g(2)) = f(1) = 1 + 1 = {{2}}.","f(2) = 4 + 1 = 5, so g(f(2)) = g(5) = 10 − 3 = {{7}}.","Different answers: the order of the machines matters."],{"k":"tree","root":"x = 2","kids":["g then f: 2 → 1 → 2","f then g: 2 → 5 → 7"]},["Find the inner function","Evaluate it","Feed the result outward","Compare orders"],"Composition is an assembly line. Putting on socks then shoes is not the same as shoes then socks. Read from the inside out.",{"g":"f(g(2)) and g(f(2)).","gw":"Order matters, so both must be found carefully.","w":["Inner function first, then the outer.","Now the other order.","Compare to see why order matters."],"an":"Socks then shoes is not shoes then socks.","ld":["Inside first, feed outward.","f∘g means g acts first.","A function maps each input to one output."],"sib":"If f(x) = 3x and g(x) = x − 2, find f(g(x)) and g(f(x))."});
+X2("rf","Modulus function: two cases",2,"If f(x) = |x − 2|, find all x with f(x) = 3, and state the range of f.","x = 5 or x = −1; range [0, ∞)",["|something| = 3 means the something could be which two numbers?","x − 2 = 3 or x − 2 = −3. Write both before solving either.","A modulus is never negative. What is its smallest value?"],["{{|u| = k (k > 0) ⇒ u = k or u = −k}}: always two cases.","{{|u| ≥ 0}}, and it equals 0 at u = 0."],["Case 1: x − 2 = 3, so {{x = 5}}.","Case 2: x − 2 = −3, so {{x = −1}}.","Check: |5 − 2| = 3 and |−1 − 2| = 3.","Smallest value 0 at x = 2, and it grows without limit: range {{[0, ∞)}}."],{"k":"plane","x":[-2,6],"y":[-1,5],"el":[{"fn":"Math.abs(x-2)","c":1,"w":3},{"ln":[0,1,-3],"c":2,"dash":1,"l":"y = 3"},{"p":[-1,3],"l":"x = −1","c":3},{"p":[5,3],"l":"x = 5","c":3}]},["Write both cases","Solve each","Check both","State the range"],"Modulus means distance, and distance can be measured in two directions. The V-shaped graph meets a level line twice, which is why there are always two cases to write.",{"g":"Both x with |x − 2| = 3, and the range.","gw":"Modulus equations have two cases; one alone is half an answer.","w":["First case: inside equals +3.","Second case: inside equals −3.","Check both in the original.","Least value 0, no greatest: that is the range."],"an":"Standing 3 steps from a lamp post: you could be 3 steps left or 3 steps right.","ld":["Write both cases before solving.","|u| is the distance of u from 0.","Distance on the number line."],"sib":"Solve |2x + 1| = 5."});
+X2("lm","Standard limit sin x / x",1,"Evaluate lim x→0 (sin 5x)/x.","5",["Which standard limit involves sin and x together?","lim θ→0 (sin θ)/θ = 1. The angle here is 5x, so the bottom should be 5x too.","Multiply and divide by 5."],["{{lim θ→0 (sin θ)/θ = 1}}, as long as the bottom matches the angle.","Make them match by multiplying and dividing by a constant."],["(sin 5x)/x = 5 × (sin 5x)/(5x).","As x → 0, 5x → 0, so (sin 5x)/(5x) → 1.","Limit = 5 × 1 = {{5}}."],{"k":"rows","r":[["(sin 5x)/x","= 5 · (sin 5x)/(5x)"],["(sin 5x)/(5x)","→ 1"],["answer","5"]],"hl":1},["Spot the standard form","Match the bottom to the angle","Use the known limit","Multiply out"],"Standard limits are keys. The skill is shaping the lock to fit the key: here, making the denominator exactly the angle inside the sine.",{"g":"The limit of sin 5x over x.","gw":"The standard limit only works when the bottom matches the angle.","w":["Multiply and divide by 5 to match the angle.","The standard limit gives 1.","Multiply the constant back."],"an":"A key that fits only one lock shape: reshape the lock.","ld":["Match the bottom to the angle, use the standard limit.","(sin θ)/θ → 1 as θ → 0.","Areas of sector and triangles squeezing."],"sib":"Evaluate lim x→0 (sin 3x)/(sin 2x)."});
+X2("dv","Power rule and a value",1,"If f(x) = x³ − 4x + 7, find f′(x) and f′(2).","f′(x) = 3x² − 4, f′(2) = 8",["Differentiate term by term. What is the rule for xⁿ?","d/dx xⁿ = n xⁿ⁻¹. The derivative of a constant is 0.","f′(x) = 3x² − 4. Now put x = 2."],["{{d/dx xⁿ = n xⁿ⁻¹}}, constants go to 0.","Differentiate first, then substitute."],["d/dx x³ = 3x², d/dx (−4x) = −4, d/dx 7 = 0.","f′(x) = {{3x² − 4}}.","f′(2) = 3(4) − 4 = {{8}}."],{"k":"rows","r":[["x³","3x²"],["−4x","−4"],["7","0"]],"hl":0},["Split into terms","Apply the power rule","Collect","Substitute"],"Differentiation works term by term, like a machine that processes each part separately and adds the results.",{"g":"f′(x) and its value at 2.","gw":"The rate of change at x = 2 is a number you can use.","w":["Apply the power rule to each term.","Collect the terms.","Substitute x = 2."],"an":"Each part of a recipe is scaled on its own, then combined.","ld":["Term by term, n xⁿ⁻¹.","Differentiation is linear.","First principles for xⁿ."],"sib":"If f(x) = 2x⁴ − x² + 5, find f′(1)."});
+X2("dv","First principles: sin x",3,"Find the derivative of sin x from first principles.","cos x",["Write (sin(x + h) − sin x)/h. Which formula turns a difference of sines into a product?","sin C − sin D = 2 cos((C + D)/2) sin((C − D)/2).","You get 2 cos(x + h/2) sin(h/2)/h. Match sin(h/2) with h/2."],["{{Difference to product}}, then {{lim θ→0 (sin θ)/θ = 1}}.","Split the limit into a part you can substitute and a standard part."],["sin(x + h) − sin x = 2 cos(x + h/2) sin(h/2).","Divide by h: cos(x + h/2) × sin(h/2)/(h/2).","As h → 0: cos(x) × 1 = {{cos x}}."],{"k":"plane","x":[-0.5,6.5],"y":[-1.4,1.4],"el":[{"fn":"Math.sin(x)","c":1,"w":3},{"fn":"Math.cos(x)","c":2,"dash":1},{"tx":[0.4,1.15],"l":"slope of sin = cos","c":2}]},["Write the definition","Turn the difference into a product","Separate a standard limit","Let h → 0"],"This proof uses three earlier ideas together: first principles, sum to product and the standard limit. It shows why the slope of the sine wave is the cosine wave.",{"g":"Show that the slope of sin x is cos x.","gw":"This is why every trig derivative works.","w":["A difference of sines becomes a product.","Separate the standard limit part.","Let h → 0."],"an":"Watching a swing: when it is highest it is slowest, which is what cos tells sin.","ld":["Difference to product, standard limit.","(sin θ)/θ → 1.","The geometry of the unit circle."],"sib":"Find the derivative of cos x from first principles."});
+
 /* ---------- book examples: figures ---------- */
 function fmt(s){return esc(s).replace(/\{\{(.+?)\}\}/g,'<mark class="pv">$1</mark>')}
 function plain(s){return String(s).replace(/\{\{|\}\}/g,'')}
@@ -7698,7 +7714,7 @@ function mkNext(){MKR.i++;MKR.pick=null;MKR.hu=0;if(MKR.i>=MKR.q.length){var ok=
 /* ---------- weekly progress report (WhatsApp) ---------- */
 var WKN={'Trigonometric Functions':'Trigonometry','Straight Lines':'Points and Straight Lines'};
 function wkTopic(e){var n=e.k==='q'?(NM[e.p]||e.p):(e.topic||'Other');return WKN[n]||n}
-function wkDate(t){return new Date(t).toLocaleDateString(undefined,{day:'numeric',month:'short'})}
+var _wkF=null;function wkDate(t){try{if(!_wkF)_wkF=new Intl.DateTimeFormat(undefined,{day:'numeric',month:'short'});return _wkF.format(new Date(t))}catch(e){return new Date(t).toLocaleDateString()}}
 function wkText(){
   var now=Date.now(),from=now-7*864e5,ev=S.ev.filter(function(e){return e.ts&&e.ts>=from}),t='📘 Study Buddy – weekly report ('+wkDate(from)+' – '+wkDate(now)+')\n';
   if(!ev.length)return t+'\nNo practice recorded this week.';
@@ -13101,6 +13117,22 @@ window.tqOpen=function(id){var it=item(id);if(!it)return;TQV.open=id;HV.c=null;T
 window.tqBack=function(){TQV.open=null;render();window.scrollTo(0,0)};
 
 /* ---------- list ---------- */
+function phiCheck(){
+  var F=[['Argument map','One question: your position, the strongest objection, your reply.','Help me build an argument map on a question I choose: my position, the strongest objection to it, and my reply. Ask me for each part in turn and do not write them for me.'],
+    ['Steelman','Make the best case for a view you disagree with.','I want to steelman a view I disagree with. Ask which view that is, then help me build its best case in my own words, and push back where it is weak.'],
+    ['Dialogue','Two thinkers from different traditions argue it out.','Help me write a short dialogue between two thinkers from different traditions, for example Charvaka and Nyaya, or Buddha and Sartre. Ask which two and which question, let me write the lines, and object where a thinker would.'],
+    ['Viva','A 10-minute talk on a question you have not seen.','Hold a short viva with me. Ask me one question I have not seen, on any big question about knowledge, the self, justice or the good life, then probe my answer with one follow-up at a time. At the end tell me in two lines where my reasoning was strongest and where it was thinnest.']];
+  var Q=['If there is no afterlife, does morality matter more or less?','Can a society be democratic while its members remain deeply unequal?','When does patriotism begin to conflict with humanity?','Is there a permanent self, or is identity made by relationships and choices?'];
+  var C=[['Clear claim','a position stated plainly, key terms defined'],['Sound reasoning','premises that really support the conclusion'],['Faces objections','takes the strongest counter-argument seriously'],['Cross-tradition','draws on two or more traditions and compares them fairly'],['Honest thinking','admits limits and is willing to change its mind']];
+  var h='<div class="card tqkit"><b>Show your thinking</b><p class="sub" style="margin:2px 0 8px">No written exam and no right answer to memorise. Thinking here is checked in four open-book ways. Pick one to practise with Claude below.</p><div class="tqtools">'+
+    F.map(function(f,i){return'<button class="tqtool on" title="'+esc(f[1])+'" onclick="phiGo('+i+')">'+esc(f[0])+'</button>'}).join('')+'</div>'+
+    '<ul class="sub" style="margin:8px 0 0;padding-left:18px">'+F.map(function(f){return'<li><b>'+esc(f[0])+'.</b> '+esc(f[1])+'</li>'}).join('')+'</ul>'+
+    '<p class="sub" style="margin:10px 0 4px"><b>What is looked for</b>. Each piece gets feedback and a level for each point: Emerging, Developing, Secure or Original. No marks and no ranking.</p>'+
+    '<ul class="sub" style="margin:0;padding-left:18px">'+C.map(function(c){return'<li><b>'+esc(c[0])+'</b>: '+esc(c[1])+'</li>'}).join('')+'</ul>'+
+    '<p class="sub" style="margin:10px 0 4px"><b>Try a viva question</b></p><div class="tqtools">'+Q.map(function(q,i){return'<button class="tqtool on" style="text-align:left" onclick="phiQ('+i+')">'+esc(q)+'</button>'}).join('')+'</div></div>';
+  window._phiF=F;window._phiQ=Q;return h}
+window.phiGo=function(i){var f=window._phiF&&window._phiF[i];if(!f||TQV.busy)return;send('free_phi',f[2],false);var c=document.getElementById('tqChat');if(c)c.scrollIntoView({behavior:'smooth',block:'center'})};
+window.phiQ=function(i){var q=window._phiQ&&window._phiQ[i];if(!q||TQV.busy)return;send('free_phi',q,true);var c=document.getElementById('tqChat');if(c)c.scrollIntoView({behavior:'smooth',block:'center'})};
 function tqList(s){var M=SUB[s],L=list(s),n=nDone(s);
   var h='<div class="tq tq-'+s+'"><h1>'+M.n+'</h1>'+(s==='his'?hisSeg():'')+'<p class="sub">'+M.lead+'</p>';
   h+='<div class="hprog"><div class="bar"><i style="width:'+Math.round(n/L.length*100)+'%"></i></div><span>'+n+' of '+L.length+' explored</span></div>';
@@ -13108,6 +13140,7 @@ function tqList(s){var M=SUB[s],L=list(s),n=nDone(s);
   h+='<div class="card tqlist">';
   L.forEach(function(x,i){var d=got(x.id);h+='<button class="trow" onclick="tqOpen(\''+x.id+'\')"><span class="tn'+(d?' tqd':'')+'">'+(d?'✓':(i+1))+'</span><span class="tt"><b>'+esc(x.t)+'</b><small>'+esc(x.h)+'</small></span><span class="pill">'+esc(x.k)+'</span></button>'});
   h+='</div>';
+  if(s==='phi')h+=phiCheck();
   h+='<div class="card"><b>A question of your own</b><p class="sub" style="margin:2px 0 6px">Anything in '+M.n.toLowerCase()+' you have wondered about. Claude will not hand you an answer: it will ask what you think, and push back.</p>'+
     '<form class="ask" onsubmit="event.preventDefault();tqSay(\'free_'+s+'\')"><input id="tqIn" placeholder="Ask or claim something" autocomplete="off" aria-label="Your question"><button class="chipb" type="submit">Start</button></form><div id="tqChat">'+chatHtml('free_'+s)+'</div></div></div>';
   app.innerHTML=h}
@@ -15132,6 +15165,337 @@ function decorate(){var D=window.IMPD;if(!D||view!=='imp')return;var cs=document
 var _r9=render;render=function(){_r9();try{decorate()}catch(e){}};
 })();
 /*IMPT-END*/
+/*SIMPLE-START*/
+/*SIMPLE: the maths part opens on two choices, Quick prep and Build concepts. Every older page is still there, reached from
+  one of the two or from More. Chapters carry a tag for how much of next year's paper rests on them, and Build concepts
+  suggests the highest-priority unfinished chapter first. No saved progress is changed. */
+(function(){
+var HUBS=[['qp','Quick prep'],['cd','Build concepts'],['mm','More']];
+var IN={qp:['stk','practice','tt','pp','mk','mc','st'],cd:['base','ex','th','tl','cb','pl','lz','story'],mm:['today','spots','imp','check','wr','tp','fx']};
+var T1=['tg','te','qe','rf','pr','lm','dv'],T2=['sl','ci','pt','pc','se','md','td','co'],T3=['cx','ss','cs','bt','mi','mr','ix'];
+var TIER={};T1.forEach(function(c){TIER[c]=1});T2.forEach(function(c){TIER[c]=2});T3.forEach(function(c){TIER[c]=3});
+var TN={1:'Builds next year',2:'Partly carries over',3:'This year only'};
+var FULL=false;
+function hubOf(v){for(var k in IN)if(v===k||IN[k].indexOf(v)>=0)return k;return'mm'}
+var NMX={stk:'I got stuck',th:'Concept map',tl:'Templates',wr:'Written answers',tp:'Tutor pack',fx:'Rewards',imp:'How to improve',spots:'Progress',check:'Check notebook',today:'Plan and points',tt:'Timed test',pl:'Play with it',cb:'Concept Builder',lz:'Lazy mode',mk:'My mistakes',mc:'Memory cards',st:'Which method fits?',pp:'Full paper',ex:'Worked examples',story:'Stories',base:'Cover the base',practice:'Chapters'};
+function nm(v){return NMX[v]||(typeof SECN!=='undefined'&&SECN[v])||v}
+try{var G=GRP.maths;if(G){HUBS.slice().reverse().forEach(function(h){if(!G.some(function(t){return t[0]===h[0]}))G.unshift([h[0],h[1]])})}
+  if(typeof SECN!=='undefined'){SECN.qp='Quick prep';SECN.cd='Build concepts';SECN.mm='More maths tools'}}catch(e){}
+
+/* second row: three tabs, and a way back when inside a tool */
+var _sb=subBar;subBar=function(){_sb();try{if(grpOf(view)!=='maths')return;var el=document.getElementById('sub'),hb=hubOf(view);
+  var h='<div class="segs fit2" role="tablist">'+HUBS.map(function(t){return'<button role="tab" aria-selected="'+(t[0]===hb)+'" onclick="goView(\''+t[0]+'\')">'+t[1]+'</button>'}).join('')+'</div>';
+  if(view!==hb)h+='<div class="smcrumb"><button class="link" onclick="goView(\''+hb+'\')">← '+esc(nm(hb))+'</button><span>'+esc(nm(view))+'</span></div>';
+  el.innerHTML=h;var nav=document.getElementById('topnav');if(nav)document.documentElement.style.setProperty('--navh',nav.offsetHeight+'px')}catch(e){}};
+
+function row(i,t,s,on,pill){return'<button class="trow" onclick="'+on+'"><span class="tn">'+i+'</span><span class="tt"><b>'+t+'</b><small>'+s+'</small></span>'+(pill||'')+'</button>'}
+function head(t,sub){var g=typeof GUIDE!=='undefined'?GUIDE:'';return'<div class="tdhd"><h1>'+t+'</h1><span class="tdbtns">'+(g?'<a class="guideb" href="'+g+'" target="_blank" rel="noopener">📖 Guide</a>':'')+'</span></div><p class="sub">'+sub+'</p>'}
+function tag(c){var t=TIER[c];return t?'<span class="smtag sm'+t+'">'+TN[t]+'</span>':''}
+function prog(c){try{return chProg(c)}catch(e){return{tot:0,done:0,att:0}}}
+function suggest(){var B={};try{B=baseSt()}catch(e){}var open=function(c){var p=prog(c);return p.tot&&p.done<p.tot};
+  if(B.ch&&TIER[B.ch]===1&&open(B.ch))return B.ch;var L=T1.concat(T2,T3);for(var i=0;i<L.length;i++)if(open(L[i]))return L[i];return null}
+window.smCh=function(c){try{var B=baseSt();B.ch=c;B.g=null;save();EXC=c;EXI=null;view='ex';render();window.scrollTo(0,0)}catch(e){goView('base')}};
+window.smFull=function(){FULL=true;goView('today')};
+
+function qpView(){var open=0,hot=0;try{open=mkList().filter(function(m){return!m.fx}).length;hot=mcAll().filter(function(m){return mcHeat(m)>=3}).length}catch(e){}
+  var h=head('Quick prep','A test or class coming up? Pick one. Each takes a few minutes.');
+  try{var D=window.IMPD;if(D&&D.weak&&D.weak.length){var ix=window.impPick?impPick(Math.floor(Date.now()/864e5)):0,w=D.weak[ix];
+    h+='<div class="card hi"><div class="eyebrow">Start here · 5 minutes</div><p style="margin:4px 0 0"><b>'+esc(w.n)+'</b></p><p class="sub" style="margin:4px 0 8px">'+esc(w.fix[0])+'</p><button class="btn" onclick="impOpen()">Practise this weak spot</button></div>'}}catch(e){}
+  h+='<div class="card">'+
+    row('✓','Quick round on a chapter','8 questions, about 10 minutes',"goView('practice')")+
+    row('↻','Retry my mistakes',open?open+' still open':'Nothing open. Great work!',open?"goView('mk');mkStart()":"goView('mk')",open?'<span class="pill bad">'+open+'</span>':'')+
+    row('♥','Memory cards','Formulas and facts to have ready',"goView('mc')",hot?'<span class="pill bad">'+hot+'</span>':'')+
+    row('◎','Which method fits?','Spot the pattern before you start',"goView('st')")+
+    row('▦','Templates','The standard recipe for each kind of question',"goView('tl')")+
+    row('⏱','Timed test','Against the clock',"goView('tt')")+
+    row('∑','Full paper','Exam pattern, marked part by part',"goView('pp')")+'</div>';
+  app.innerHTML=h}
+
+function ctDone(){try{return baseAll().done}catch(e){return 0}}
+window.smTarget=function(n){S.ctg={n:n,base:ctDone(),ts:Date.now()};try{save()}catch(e){}render();window.scrollTo(0,0)};
+window.smTargetEnd=function(){S.ctg=null;try{save()}catch(e){}render()};
+function ctCard(){var t=S.ctg;
+  if(!t||!t.n)return'<div class="card"><b>Set a concept target</b><p class="sub" style="margin:2px 0 8px">A small target you can reach. A concept counts when you have understood it, solved it and practised it.</p><div class="row2"><button class="btn alt" onclick="smTarget(1)">1 concept</button><button class="btn alt" onclick="smTarget(2)">2 concepts</button><button class="btn alt" onclick="smTarget(3)">3 concepts</button></div></div>';
+  var got=Math.max(0,ctDone()-t.base),n=t.n,d='';for(var i=0;i<n;i++)d+='<i class="'+(i<got?'on':'')+'"></i>';
+  if(got>=n)return'<div class="card hi"><div class="eyebrow">Target reached</div><p style="margin:4px 0 2px"><b>'+n+' concept'+(n>1?'s':'')+' done. You earned that.</b></p><div class="ctdots">'+d+'</div><p class="sub" style="margin:6px 0 8px">Each one you finish is one less thing that can surprise you in a test.</p><div class="row2"><button class="btn" onclick="smTarget('+Math.min(n+1,5)+')">Set the next target</button><button class="btn alt" onclick="smTargetEnd()">Done for now</button></div></div>';
+  return'<div class="card hi"><div class="eyebrow">Your concept target</div><p style="margin:4px 0 2px"><b>'+got+' of '+n+' concept'+(n>1?'s':'')+' complete</b></p><div class="ctdots">'+d+'</div><p class="sub" style="margin:6px 0 0">'+(got?'Good progress. Keep going, you are closer than it feels.':'Start with the suggested chapter below. One concept at a time.')+'</p></div>'}
+function cdView(){var c=suggest(),p=c?prog(c):null;
+  var h=head('Build concepts','No rush here. One idea at a time, until it makes sense.');
+  h+='<div class="smtiles"><button onclick="goView(\'th\')"><span>🗺️</span><b>Concept map</b><small>See how an idea connects to the ones beneath it</small></button><button onclick="goView(\'tl\')"><span>▦</span><b>Templates</b><small>The standard recipe for each kind of question</small></button><button class="smwide" onclick="goView(\'lz\')"><span>☾</span><b>Lazy mode</b><small>Lie back and choose each next step; the app does the sums</small></button></div>';
+  h+=ctCard();
+  if(c)h+='<div class="card hi"><div class="eyebrow">Suggested next</div><p style="margin:4px 0 2px"><b>'+esc(BXN[c])+'</b> '+tag(c)+'</p><p class="sub" style="margin:2px 0 8px">'+p.done+' of '+p.tot+' concepts complete</p><div class="row2"><button class="btn" onclick="smCh(\''+c+'\')">'+(p.att?'Continue':'Start')+'</button><button class="btn alt" onclick="goView(\'base\')">Choose a chapter</button></div></div>';
+  else h+='<div class="card hi"><b>Every chapter is complete</b><button class="btn" style="margin-top:8px" onclick="goView(\'base\')">See all chapters</button></div>';
+  h+='<div class="card">'+
+    row('→','Worked examples','Step by step, with hints and Claude to ask',"goView('ex')")+
+    row('◷','Concept Builder','Questions that adapt until it clicks',"goView('cb')")+
+    row('✋','Play with it','Move things and watch what changes',"goView('pl')")+
+    row('★','Stories','Where the maths came from',"goView('story')")+'</div>';
+  h+='<div class="card"><b>What to learn first</b><p class="sub" style="margin:2px 0 6px">Some chapters are used again and again next year. Go deepest on those.</p>'+
+    [[1,T1],[2,T2],[3,T3]].map(function(g){return'<p style="margin:10px 0 4px"><span class="smtag sm'+g[0]+'">'+TN[g[0]]+'</span></p><div class="smchips">'+g[1].filter(function(x){return BXN[x]}).map(function(x){var q=prog(x);return'<button onclick="smCh(\''+x+'\')">'+esc(BXN[x])+(q.tot&&q.done===q.tot?' ✓':'')+'</button>'}).join('')+'</div>'}).join('')+'</div>';
+  app.innerHTML=h}
+
+function mmView(){var h=head('More','Everything else in maths. Nothing has been removed.');
+  h+='<div class="card">'+
+    row('📈','How to improve','Weak spots and the routine for each',"goView('imp')")+
+    row('✎','Check my notebook','Photo or stylus: Claude checks each step',"goView('check')")+
+    row('✍','Written answers','Write one out and Claude marks the working',"goView('wr')")+
+    row('▤','Progress','Levels, weak spots and history',"goView('spots')")+
+    row('▦','Templates','The standard shape of each problem type',"goView('tl')")+
+    row('⎙','Tutor pack','Practice sheet and answer key for each chapter',"goView('tp')")+
+    row('✦','Rewards','Curiosity cards unlocked by practice',"goView('fx')")+
+    row('☰','The old Today page','Plan, points and quick picks, as before',"smFull()")+'</div>';
+  app.innerHTML=h}
+
+/* chapter tags on the older chapter lists */
+var BYN={};try{BXC.forEach(function(c){BYN[c[1]]=c[0]})}catch(e){}
+function decorate(){if(view==='base')app.querySelectorAll('[data-bc]').forEach(function(b){var c=b.dataset.bc,n=b.querySelector('.bcn');if(n&&TIER[c]&&!n.querySelector('.smtag'))n.insertAdjacentHTML('beforeend',tag(c))});
+  if(view==='practice')app.querySelectorAll('.chtile').forEach(function(b){var t=b.querySelector('b'),c=t&&BYN[t.textContent];if(c&&TIER[c]&&!b.querySelector('.smtag'))t.insertAdjacentHTML('afterend',tag(c))})}
+
+var _r=render;render=function(){if(view==='today'&&!FULL)view='qp';if(view!=='today')FULL=false;_r();
+  try{if(view==='qp')qpView();else if(view==='cd')cdView();else if(view==='mm')mmView();else decorate()}catch(e){}};
+var st=document.createElement('style');st.textContent='.smtiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 12px}.smtiles button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;border:1px solid var(--accent);background:var(--card);color:var(--fg);border-radius:14px;padding:12px;font:inherit;cursor:pointer}.smtiles button span{font-size:1.4rem}.smtiles .smwide{grid-column:1/-1}.smtiles button small{color:var(--muted);font-size:.8rem}.smtiles button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.ctdots{display:flex;gap:8px;margin:6px 0}.ctdots i{width:18px;height:18px;border-radius:50%;border:2px solid var(--accent);box-sizing:border-box}.ctdots i.on{background:var(--accent)}.smcrumb{display:flex;align-items:center;gap:10px;padding:8px 2px 0;font-size:.88rem;color:var(--muted)}.smcrumb span{font-weight:600;color:var(--fg)}.smtag{display:inline-block;font-size:.7rem;font-weight:600;border-radius:20px;padding:1px 8px;border:1px solid var(--line);color:var(--muted);white-space:nowrap;vertical-align:middle}.smtag.sm1{border-color:var(--accent);color:var(--accent)}.chtile .smtag{margin-top:4px}.smchips{display:flex;flex-wrap:wrap;gap:6px}.smchips button{border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:20px;padding:6px 12px;font:inherit;font-size:.86rem;cursor:pointer}.smchips button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}';document.head.appendChild(st);
+try{render()}catch(e){}
+})();
+/*SIMPLE-END*/
+/*STUCK-START*/
+/*STUCK: "I got stuck". The student uploads a photo of the question and their attempt (or types them).
+  1. The app first asks: where do you think it went wrong?
+  2. Claude then leads the student, one question at a time, to find the answer themselves, always naming the template step they are on.
+  3. Once solved (or after real effort, on request) Claude lays out the whole path: where it went wrong, the strategy, the template and each step.
+  4. The student must put the template's steps back in order before finishing, so the recipe is understood, not just read.
+  5. The slip is saved to My mistakes and counted against the matching weak spot in Improve. */
+(function(){
+var K={st:'cap',photo:null,url:null,tq:'',ta:'',info:null,self:'',chat:[],busy:false,fin:null,ord:[],got:[],miss:0,tries:0,sim:null};window.STK=K;
+var WHERE=[['start','I did not know how to start'],['mid','I started, but got stuck in the middle'],['wrong','I finished, but the answer is wrong'],['unsure','I am not sure']];
+function weakNames(){return(window.IMPD&&IMPD.weak||[]).map(function(w){return w.n})}
+function reset(){K.st='cap';K.photo=null;K.url=null;K.tq='';K.ta='';K.info=null;K.self='';K.chat=[];K.busy=false;K.fin=null;K.ord=[];K.got=[];K.miss=0;K.tries=0;K.sim=null}
+window.stkOpen=function(){reset();goView('stk')};
+function box(t){return'<div class="cmsg exp"><div class="ctext">'+t+'</div></div>'}
+function tplBox(){var i=K.info;if(!i||!i.template)return'';return'<details class="card stktpl"><summary style="cursor:pointer"><b>Template: '+esc(i.template)+'</b> <span class="sub">tap to see the recipe</span></summary><ol style="margin:8px 0 0;padding-left:1.3em">'+(i.template_steps||[]).map(function(s){return'<li style="margin:3px 0">'+esc(s)+'</li>'}).join('')+'</ol></details>'}
+function qBox(){var i=K.info;if(!i)return'';return'<div class="card"><div class="eyebrow">The question'+(i.topic?' · '+esc(i.topic):'')+'</div><p class="ctext" style="margin:4px 0 0">'+esc(i.problem)+'</p>'+(i.attempt?'<details style="margin-top:6px"><summary class="sub" style="cursor:pointer">Your attempt, as Claude read it</summary><p class="ctext sub" style="margin:4px 0 0">'+esc(i.attempt)+'</p></details>':'')+'</div>'}
+
+/* ---------- screens ---------- */
+function stkView(){var h='<h1>I got stuck</h1>';
+  if(K.st==='cap'){
+    h+='<p class="sub">Send the question and what you tried. Claude will not just hand you the answer: first you find where it went wrong, then you work it out together.</p>';
+    h+='<div class="card hi"><b>1. Photo of the question and your working</b><p class="sub" style="margin:2px 0 8px">One photo with both is fine. Crossed-out lines are ignored.</p>'+pickBtns('stk','Take a photo')+'<img id="stkPv" alt="Your photo" style="margin-top:8px;border-radius:10px"'+(K.url?' src="'+K.url+'"':' hidden')+'></div>';
+    h+='<div class="card"><b>Or type it</b><textarea id="stkQ" rows="3" placeholder="The question" style="width:100%;margin-top:6px">'+esc(K.tq)+'</textarea><textarea id="stkA" rows="4" placeholder="What you tried, line by line (optional)" style="width:100%;margin-top:6px">'+esc(K.ta)+'</textarea></div>';
+    h+='<button class="btn" id="stkGo">Help me find where it went wrong</button><div id="stkMsg" class="sub" style="margin:8px 0 0"></div>';
+    h+=histHtml();
+  }else if(K.st==='reading'){h+='<div class="card"><p class="sub">Claude is reading your question and working…</p></div>'}
+  else if(K.st==='where'){
+    h+=qBox()+'<div class="card hi"><b>Before any help: where do you think it went wrong?</b><p class="sub" style="margin:2px 0 8px">Your own guess matters. Spotting the slip yourself is half the fix.</p>'+WHERE.map(function(w){return'<button class="opt sm" style="width:100%;text-align:left" onclick="stkWhere(\''+w[0]+'\')">'+esc(w[1])+'</button>'}).join('')+
+      '<p class="sub" style="margin:10px 0 4px">Or say it in your own words, for example “line 3, the sign”.</p><form class="ask" onsubmit="event.preventDefault();stkWhere(\'own\')"><input id="stkW" placeholder="I think it went wrong at…" autocomplete="off" aria-label="Where it went wrong"><button class="chipb" type="submit">Go</button></form></div>';
+  }else if(K.st==='chat'){
+    h+=qBox()+tplBox()+'<div class="card"><b>Work it out together</b><p class="sub" style="margin:2px 0 4px">Answer each question on paper first, then type what you got. Short answers are fine.</p><div id="stkChat">'+chatList()+'</div>'+
+      '<form class="ask" onsubmit="event.preventDefault();stkSay()"><input id="stkIn" placeholder="Your answer or question" autocomplete="off" aria-label="Your reply"'+(K.busy?' disabled':'')+'><button class="chipb" type="submit"'+(K.busy?' disabled':'')+'>Send</button></form>'+
+      '<div class="row2" style="margin-top:8px"><button class="btn alt" onclick="stkSay(\'I do not know. Give me a bigger hint, please.\')"'+(K.busy?' disabled':'')+'>Bigger hint</button>'+
+      (K.tries>=3?'<button class="btn alt" onclick="stkFinal(false)"'+(K.busy?' disabled':'')+'>Show me the whole path</button>':'<button class="btn alt" disabled title="Try a few steps first">Whole path after 3 tries</button>')+'</div></div>';
+  }else if(K.st==='final'){h+=qBox()+'<div class="card"><p class="sub">Claude is laying out the whole path…</p></div>'}
+  else if(K.st==='path'||K.st==='recall'||K.st==='done'){h+=pathHtml();if(K.st==='recall')h+=recallHtml();if(K.st==='done')h+=doneHtml()}
+  app.innerHTML=h;wire()}
+function chatList(){return K.chat.map(function(m){return m.me?'<div class="cmsg tqme"><div class="ctext">'+esc(m.t)+'</div></div>':'<div class="cmsg exp"><div class="ctext">'+(m.t==null?'<span class="muted">Claude is thinking…</span>':esc(m.t))+'</div></div>'}).join('')}
+function pathHtml(){var f=K.fin,i=K.info;if(!f)return'';
+  var h=(K.solved?'<div class="card hi"><div class="eyebrow">You found it</div><p style="margin:4px 0 0"><b>Answer: '+esc(f.answer)+'</b></p><p class="sub" style="margin:4px 0 0">You worked that out. Now see the whole path, so the next one like it is easy.</p></div>':'')+qBox();
+  h+='<div class="card"><b>Where it went wrong</b><p style="margin:4px 0 0">'+esc(f.where)+'</p>'+(f.why?'<p class="sub" style="margin:6px 0 0">'+esc(f.why)+'</p>':'')+'</div>';
+  h+='<div class="card"><b>Strategy: how to spot this kind of question</b><p style="margin:4px 0 0">'+esc(f.strategy)+'</p></div>';
+  h+='<div class="card hi"><b>Template: '+esc(f.template.name)+'</b><ol style="margin:6px 0 0;padding-left:1.3em">'+f.template.steps.map(function(s){return'<li style="margin:3px 0">'+esc(s)+'</li>'}).join('')+'</ol></div>';
+  h+='<div class="card"><b>The whole path for this question</b>'+f.path.map(function(p,n){return'<div style="border-top:1px solid var(--line);padding:8px 0"><div class="eyebrow">Template step '+(n+1)+(p.step?' · '+esc(p.step):'')+'</div><p class="ctext" style="margin:2px 0 0">'+esc(p.work)+'</p></div>'}).join('')+'<div class="fb ok" style="margin:8px 0 0"><b>Answer:</b> '+esc(f.answer)+'</div>'+(f.check?'<p class="sub" style="margin:8px 0 0"><b>Check it:</b> '+esc(f.check)+'</p>':'')+'</div>';
+  h+='<div class="card"><b>Saved to your weak spots</b><p style="margin:4px 0 0">'+esc(f.weak_spot)+'</p><p class="sub" style="margin:4px 0 0"><b>Habit:</b> '+esc(f.habit)+'</p></div>';
+  if(K.st==='path')h+='<button class="btn" onclick="stkRecall()">Now put the template in order</button>';
+  return h}
+function recallHtml(){var f=K.fin,n=f.template.steps.length;
+  return'<div class="card hi" id="stkRec"><b>Your turn: the template, in order</b><p class="sub" style="margin:2px 0 8px">Tap the steps in the order you would use them. This is the recipe you will use next time, so it has to be yours.</p>'+
+    (K.got.length?'<ol style="margin:0 0 8px;padding-left:1.3em">'+K.got.map(function(i){return'<li style="margin:3px 0">'+esc(f.template.steps[i])+'</li>'}).join('')+'</ol>':'')+
+    '<div>'+K.ord.filter(function(i){return K.got.indexOf(i)<0}).map(function(i){return'<button class="opt sm" style="width:100%;text-align:left" onclick="stkTap('+i+')">'+esc(f.template.steps[i])+'</button>'}).join('')+'</div>'+
+    '<p id="stkRm" class="sub" style="margin:6px 0 0">'+K.got.length+' of '+n+' in place</p></div>'}
+function doneHtml(){var s=K.sim;
+  var h='<div class="card hi"><div class="eyebrow">Template learnt</div><p style="margin:4px 0 0"><b>'+esc(K.fin.template.name)+'</b>'+(K.miss?'':' · first time, no slips')+'</p><p class="sub" style="margin:4px 0 8px">The best way to keep it: use it once more, straight away.</p>';
+  if(!s)h+='<button class="btn" onclick="stkSim()"'+(K.busy?' disabled':'')+'>'+(K.busy?'Making one…':'Give me a similar question')+'</button>';
+  else{h+='<p class="ctext" style="margin:0 0 8px"><b>Try this:</b> '+esc(s.q)+'</p><p class="sub" style="margin:0 0 8px">Write the template steps first, then solve on paper.</p><details><summary style="cursor:pointer"><b>Show the answer</b></summary><div class="fb ok" style="margin:6px 0">'+esc(s.a)+'</div>'+(s.r?'':'<div class="row2"><button class="btn alt" onclick="stkSimMark(1)">I got it right</button><button class="btn alt" onclick="stkSimMark(0)">Not yet</button></div>')+'</details>'+(s.r?'<p class="sub" style="margin:8px 0 0">'+(s.r===1?'Well done. The template is yours.':'Noted. It will come back in your weak-spot practice.')+'</p>':'')}
+  h+='</div><div class="row2"><button class="btn alt" onclick="stkOpen()">Another question</button><button class="btn alt" onclick="goView(\'mk\')">My mistakes</button></div>';
+  return h}
+function histHtml(){var L=(S.stk||[]).slice(-5).reverse();if(!L.length)return'';
+  return'<div class="card"><b>Recently stuck on</b>'+L.map(function(x){return'<div style="border-top:1px solid var(--line);padding:8px 0"><b>'+esc(x.tpl)+'</b><small class="sub" style="display:block">'+esc(x.topic||'')+' · '+esc(x.ws||'')+'</small></div>'}).join('')+'</div>'}
+function wire(){if(K.st==='cap'){try{onPick('stk',function(f){K.photo=f;try{K.url=URL.createObjectURL(f)}catch(e){}var p=document.getElementById('stkPv');if(p&&K.url){p.src=K.url;p.hidden=false}})}catch(e){}
+    var g=document.getElementById('stkGo');if(g)g.onclick=read}
+  if(K.st==='chat'){var o=document.getElementById('stkChat');if(o&&o.lastChild)o.lastChild.scrollIntoView({block:'nearest'});var i=document.getElementById('stkIn');if(i&&!K.busy&&K.chat.length)i.focus({preventScroll:true})}}
+function rer(){if(view==='stk')render()}
+
+/* ---------- Claude ---------- */
+function ctx(){var i=K.info;return'QUESTION: '+i.problem+'\nSTUDENT’S ATTEMPT: '+(i.attempt||'(none)')+'\nTOPIC: '+(i.topic||'')+'\nTEMPLATE THAT FITS: '+i.template+'\nTEMPLATE STEPS: '+(i.template_steps||[]).map(function(s,n){return(n+1)+'. '+s}).join(' ')+'\nWHERE THE WORK FIRST GOES WRONG (for you only): '+(i.first_slip||'')+'\nCORRECT ANSWER (for you only, never state it): '+(i.answer||'')+'\nSTUDENT’S OWN GUESS AT WHERE IT WENT WRONG: '+(K.self||'')}
+async function read(){var msg=document.getElementById('stkMsg');K.tq=(document.getElementById('stkQ')||{}).value||'';K.ta=(document.getElementById('stkA')||{}).value||'';K.tq=K.tq.trim();K.ta=K.ta.trim();
+  if(!K.photo&&!K.tq){msg.textContent='Add a photo, or type the question.';return}
+  var s=null;try{s=await getS()}catch(e){}if(!s){msg.textContent='Claude is not available just now. Try again in a moment.';return}
+  var opt={cache:false,modelTier:'default'};
+  if(K.photo){try{var lim=await s.limits();if(!lim.images){msg.textContent='Photo reading is not available on this account. Type the question instead.';return}opt.images=[await shrink(K.photo)]}catch(e){msg.textContent='Could not open that photo. Try another, or type it.';return}}
+  K.st='reading';rer();
+  var p='You are reading a senior-school maths question and a student’s attempt at it.'+(K.photo?' The photo shows the question and the student’s handwritten working.':'')+(K.tq?'\nTYPED QUESTION: '+K.tq:'')+(K.ta?'\nTYPED ATTEMPT: '+K.ta:'')+
+    '\nSolve it yourself carefully. Then return JSON only: {"problem":"the question written out in full, plain text, use symbols like √ ² π θ","attempt":"the student’s working in short, one line per step, or empty if none","topic":"the chapter","template":"a short name for the standard method (template) this kind of question uses","template_steps":["3 to 6 short general steps of that method, each under 14 words, not specific to this question"],"first_slip":"exactly where the student’s work first goes wrong and what the slip is, or \'not started\', or \'no slip found\'","answer":"the correct final answer"}';
+  try{var d=await s.json(p,opt);if(!d||!d.problem||!d.template)throw new Error('shape');d.template_steps=Array.isArray(d.template_steps)?d.template_steps.slice(0,6).map(String):[];K.info=d;K.st='where'}
+  catch(e){K.st='cap';rer();var m=document.getElementById('stkMsg');if(m)m.textContent=e&&e.code?sampleErr(e):'Claude could not read that. Try a clearer photo, or type it.';return}
+  rer();window.scrollTo(0,0)}
+window.stkWhere=function(k){var w=WHERE.filter(function(x){return x[0]===k})[0],t=k==='own'?((document.getElementById('stkW')||{}).value||'').trim():w&&w[1];if(!t)return;
+  K.self=t;K.st='chat';K.chat=[{me:1,t:'Where I think it went wrong: '+t}];turn(null,true)};
+window.stkSay=function(t){if(K.busy||K.st!=='chat')return;if(t==null){var i=document.getElementById('stkIn');t=i?i.value.trim():'';if(!t)return}K.chat.push({me:1,t:t});K.tries++;turn(t,false)};
+async function turn(text,first){K.busy=true;var rep={me:0,t:null};K.chat.push(rep);rer();
+  try{var s=await getS();if(!s)throw new Error('none');
+    var hist=K.chat.slice(0,-1).slice(-12).map(function(m){return(m.me?'STUDENT: ':'YOU: ')+m.t}).join('\n');
+    var p='You are a patient maths tutor helping a student who got stuck. The student must find the answer themselves.\n'+ctx()+'\nCONVERSATION SO FAR:\n'+hist+
+      '\nRULES: '+(first?'Start from the student’s own guess. Say briefly whether the guess is close (without giving the slip away if they have not found it), then ask one question that points them at the first slip. If they have not started, ask what the question wants and which template fits.':'Respond to what the student just said. If it is right, say so in a few words and ask for the next step. If it is wrong, ask a question that lets them see why, without correcting it for them.')+
+      ' Always name the template step you are on, as “Template step 2: …”. Ask exactly one question. Never state the final answer, and never do a step the student could do. If the student says they do not know, give a bigger hint: a tiny similar example with numbers, then ask again. Plain text, no markdown, at most 80 words. Set "solved" true only when the student has themselves written the correct final answer.\nReturn JSON only: {"reply":"...","solved":false}';
+    var r=await s.json(p,{cache:false,modelTier:'default'});rep.t=String(r&&r.reply||'Try putting that another way.');K.busy=false;
+    if(r&&r.solved===true){K.solved=true;rer();return stkFinal(true)}}
+  catch(e){rep.t=e&&e.code?sampleErr(e):'Claude could not reply just now. Try again in a moment.';K.busy=false}
+  rer()}
+window.stkFinal=async function(solved){if(K.busy)return;K.busy=true;K.solved=!!solved;K.st='final';rer();window.scrollTo(0,0);
+  var names=weakNames();
+  try{var s=await getS();if(!s)throw new Error('none');
+    var hist=K.chat.slice(-14).map(function(m){return(m.me?'STUDENT: ':'TUTOR: ')+m.t}).join('\n');
+    var p='A student was stuck on this maths question and has '+(solved?'now worked out the answer with hints.':'asked to see the whole path after trying.')+'\n'+ctx()+'\nTHE CONVERSATION:\n'+hist+
+      '\nWrite the full explanation the student keeps. Plain text in every field, no markdown, symbols like √ ² π θ. Return JSON only: {"where":"where the student’s work went wrong, in one or two sentences, pointing to their line","why":"why this slip happens, one sentence","strategy":"how to recognise this kind of question and choose the template, two sentences","template":{"name":"short name","steps":["3 to 6 general steps, each under 14 words"]},"path":[{"step":"short label of the template step","work":"the working for this question at this step"}],"answer":"the final answer","weak_spot":"'+(names.length?'exactly one of: '+names.join(' | ')+' — or, only if none fits, a new short name':'a short name for the skill that slipped')+'","habit":"one line the student can do every time to avoid this","check":"a quick way to check this answer"}. The path must have one entry per template step, in the same order.';
+    var f=await s.json(p,{cache:false,modelTier:'default'});
+    if(!f||!f.template||!Array.isArray(f.template.steps)||!f.template.steps.length||!Array.isArray(f.path))throw new Error('shape');
+    f.template.steps=f.template.steps.slice(0,7).map(String);K.fin=f;K.st='path';record()}
+  catch(e){K.st='chat';K.chat.push({me:0,t:e&&e.code?sampleErr(e):'Claude could not lay out the path just now. Tap again in a moment.'})}
+  K.busy=false;rer();window.scrollTo(0,0)};
+function record(){var f=K.fin,i=K.info;if(window.ROLE!=='student')return;
+  try{mkAdd({src:'I got stuck',topic:i.topic||'Maths',q:i.problem,habit:f.weak_spot,note:f.where+(K.self?' (Student’s own guess: '+K.self+')':''),h:'Template: '+f.template.name+'. '+f.template.steps.map(function(s,n){return(n+1)+'. '+s}).join(' '),ref:'stk:'+String(i.problem).slice(0,100)})}catch(e){}
+  try{var ix=weakNames().indexOf(f.weak_spot);if(ix>=0){S.impt=S.impt||{};var t=S.impt[ix]=S.impt[ix]||{ok:0,no:0,ts:0};t.no++;t.ts=Date.now()}}catch(e){}
+  S.stk=S.stk||[];S.stk.push({ts:Date.now(),topic:i.topic||'',tpl:f.template.name,ws:f.weak_spot,solved:K.solved?1:0});if(S.stk.length>60)S.stk=S.stk.slice(-60);
+  try{save()}catch(e){}}
+window.stkRecall=function(){var n=K.fin.template.steps.length,a=[];for(var i=0;i<n;i++)a.push(i);for(var j=n-1;j>0;j--){var r=Math.floor(Math.random()*(j+1)),t=a[j];a[j]=a[r];a[r]=t}
+  if(n>1&&a.every(function(v,i){return v===i})){var t2=a[0];a[0]=a[1];a[1]=t2}K.ord=a;K.got=[];K.miss=0;K.st='recall';rer();var e=document.getElementById('stkRec');if(e)e.scrollIntoView({behavior:'smooth',block:'start'})};
+window.stkTap=function(i){var need=K.got.length,f=K.fin;
+  if(i===need){K.got.push(i);if(K.got.length===f.template.steps.length){K.st='done';try{var L=S.stk;if(L&&L.length)L[L.length-1].tl=1;save()}catch(e){}}rer();var e=document.getElementById('stkRec');if(e)e.scrollIntoView({block:'nearest'});return}
+  K.miss++;var m=document.getElementById('stkRm');if(m)m.textContent='Not yet. Ask yourself: what has to be known before this step can happen? Step '+(need+1)+' comes first.'};
+window.stkSim=async function(){if(K.busy)return;K.busy=true;rer();
+  try{var s=await getS();if(!s)throw new Error('none');var f=K.fin;
+    var r=await s.json('Write one new maths question that uses exactly this template, at the same level as the original but with different numbers or setting. Original: '+K.info.problem+'\nTemplate: '+f.template.name+': '+f.template.steps.join(' | ')+'\nPlain text, symbols like √ ² π θ. Return JSON only: {"q":"the question","a":"the final answer with a one-line method"}',{cache:false,modelTier:'default'});
+    if(!r||!r.q)throw new Error('shape');K.sim={q:String(r.q),a:String(r.a||''),r:0}}
+  catch(e){try{showToast(e&&e.code?sampleErr(e):'Could not make one just now. Try again.')}catch(_){}}
+  K.busy=false;rer()};
+window.stkSimMark=function(ok){if(!K.sim)return;K.sim.r=ok?1:2;
+  try{if(window.ROLE==='student'){var ix=weakNames().indexOf(K.fin.weak_spot);if(ix>=0){S.impt=S.impt||{};var t=S.impt[ix]=S.impt[ix]||{ok:0,no:0,ts:0};if(ok)t.ok++;else t.no++;t.ts=Date.now()}save()}}catch(e){}
+  rer()};
+
+/* ---------- placement: a big button on Quick prep and Build concepts, a row under More ---------- */
+function bigBtn(){return'<button class="stkbig" onclick="stkOpen()"><span class="stki">✋</span><span><b>I got stuck</b><small>Photo of the question and your attempt. Find where it went wrong, then learn the template.</small></span></button>'}
+var _r=render;render=function(){_r();try{
+  if(view==='stk'){stkView();return}
+  if(view==='qp'||view==='cd'){var hd=app.querySelector('.tdhd'),nx=hd&&hd.nextElementSibling;if(hd&&!app.querySelector('.stkbig'))(nx&&nx.classList.contains('sub')?nx:hd).insertAdjacentHTML('afterend',bigBtn())}
+  if(view==='mm'){var c=app.querySelector('.card');if(c&&!app.querySelector('.stkrow'))c.insertAdjacentHTML('afterbegin','<button class="trow stkrow" onclick="stkOpen()"><span class="tn">✋</span><span class="tt"><b>I got stuck</b><small>Upload a question you could not do</small></span></button>')}
+}catch(e){}};
+try{if(typeof SECN!=='undefined')SECN.stk='I got stuck';var G=GRP.maths;if(G&&!G.some(function(t){return t[0]==='stk'}))G.push(['stk','I got stuck'])}catch(e){}
+var _sb=subBar;subBar=function(){_sb();try{if(view!=='stk')return;var c=document.querySelector('#sub .smcrumb');if(c)c.innerHTML='<button class="link" onclick="goView(\'qp\')">← Quick prep</button><span>I got stuck</span>'}catch(e){}};
+var _vt=viewTop;viewTop=function(v){_vt(v);if(v==='stk')reset()};
+var st=document.createElement('style');st.textContent='.stkbig{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:0;border-radius:16px;padding:14px 16px;margin:0 0 12px;background:var(--bad);color:#fff;font:inherit;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.12)}.stkbig b{display:block;font-size:1.08rem}.stkbig small{display:block;opacity:.92;font-size:.84rem;margin-top:2px}.stki{font-size:1.8rem;flex:0 0 auto}.stkbig:focus-visible{outline:3px solid var(--accent);outline-offset:2px}.stktpl summary{list-style:revert}';document.head.appendChild(st);
+try{render()}catch(e){}
+})();
+/*STUCK-END*/
+/*ALTM-START*/
+/*ALTM: "Other ways to solve it" on every worked example. Shown under the full explanation once it is open.
+  Claude writes one or two genuinely different methods on demand; the result is kept per example so it is asked for only once. */
+(function(){
+var BUSY={};
+function store(){S.exalt=S.exalt||{};return S.exalt}
+function cardHtml(e){var d=store()[e.id],h='<div class="card altm" id="xAlt"><h2>Other ways to solve it</h2>';
+  if(!d){h+='<p class="sub" style="margin:0 0 8px">The method above is not the only road. See a different way in, when it is better, and how it checks the answer.</p><button class="btn alt" onclick="altGet(\''+e.id+'\')"'+(BUSY[e.id]?' disabled':'')+'>'+(BUSY[e.id]?'Claude is working one out…':'Show another method')+'</button><div class="sub" id="altMsg" style="margin:6px 0 0"></div></div>';return h}
+  if(!d.m.length){h+='<p style="margin:0">'+esc(d.note||'This question has really only one sensible method.')+'</p></div>';return h}
+  d.m.forEach(function(m,i){h+='<div style="'+(i?'border-top:1px solid var(--line);padding-top:10px;margin-top:10px':'')+'"><div class="eyebrow">Method '+(i+2)+'</div><p style="margin:2px 0 4px"><b>'+esc(m.name)+'</b></p><p class="sub" style="margin:0 0 6px">'+esc(m.idea)+'</p><ol class="steps" style="margin:0;padding-left:1.3em">'+m.steps.map(function(s){return'<li style="margin:3px 0">'+fmt(s)+'</li>'}).join('')+'</ol>'+
+    (m.when?'<p style="margin:8px 0 0"><b>Use it when:</b> '+esc(m.when)+'</p>':'')+(m.compare?'<p class="sub" style="margin:4px 0 0"><b>Compared with method 1:</b> '+esc(m.compare)+'</p>':'')+'</div>'});
+  h+=(d.note?'<p class="sub" style="margin:10px 0 0">'+esc(d.note)+'</p>':'')+'<p class="sub" style="margin:10px 0 0">Which way would you choose in an exam, and why? Ask Claude below if you want to talk it through.</p></div>';return h}
+window.altGet=async function(id){if(BUSY[id])return;var e=BX.filter(function(x){return x.id===id})[0];if(!e)return;BUSY[id]=true;try{render()}catch(_){}
+  var err='';
+  try{var s=await getS();if(!s)throw new Error('none');
+    var p='A senior-school maths worked example has been solved by one method. Give up to two GENUINELY different correct methods (a different idea or route, not the same steps reworded). If no sensible different method exists, return an empty list and say why in "note".\nQUESTION: '+e.q+'\nANSWER: '+e.a+'\nMETHOD 1 (already shown): '+e.s.map(function(x){return plain(x)}).join(' ')+
+      '\nRules: each method must reach exactly the answer above; check it before writing. Plain text, symbols like √ ² π θ, no markdown, no LaTeX. Steps short, at most 6 per method. You may wrap the key result of a step in {{ }}.\nReturn JSON only: {"methods":[{"name":"short name","idea":"one sentence: the idea behind this route","steps":["..."],"when":"when this route is the better choice","compare":"one sentence comparing it with method 1, or how it confirms the answer"}],"note":"optional one line"}';
+    var r=await s.json(p,{cache:false,modelTier:'default'});
+    var m=(r&&Array.isArray(r.methods)?r.methods:[]).filter(function(x){return x&&x.name&&Array.isArray(x.steps)&&x.steps.length}).slice(0,2).map(function(x){return{name:String(x.name),idea:String(x.idea||''),steps:x.steps.slice(0,7).map(String),when:String(x.when||''),compare:String(x.compare||'')}});
+    store()[id]={m:m,note:String(r&&r.note||''),ts:Date.now()};try{save()}catch(_){}}
+  catch(x){err=x&&x.code?sampleErr(x):'Claude could not write one just now. Try again in a moment.'}
+  BUSY[id]=false;try{render()}catch(_){}
+  if(err){var g=document.getElementById('altMsg');if(g)g.textContent=err}
+  else{var c=document.getElementById('xAlt');if(c)c.scrollIntoView({behavior:'smooth',block:'start'})}};
+function put(){if(view!=='ex'||!EXI)return;var ex=document.getElementById('xExpl');if(!ex||document.getElementById('xAlt'))return;var e=BX.filter(function(x){return x.id===EXI})[0];if(e)ex.insertAdjacentHTML('afterend',cardHtml(e))}
+if(typeof exOne==='function'){var _eo=exOne;exOne=function(){var r=_eo.apply(this,arguments);try{put()}catch(_){}return r}}
+var _r=render;render=function(){_r();try{if(view!=='ex'||!EXI)return;var ex=document.getElementById('xExpl');if(!ex||document.getElementById('xAlt'))return;var e=BX.filter(function(x){return x.id===EXI})[0];if(e)ex.insertAdjacentHTML('afterend',cardHtml(e))}catch(_){}};
+})();
+/*ALTM-END*/
+/*TPLTAG-START*/
+/*TPLTAG: every worked example carries its template name, coloured by the kind of template:
+  1 rewrite to a standard shape · 2 use a formula · 3 cases and signs · 4 counting · 5 proof · 6 set up and solve.
+  Shown on the example card and in the chapter’s example list. */
+(function(){
+var FAM={1:'Standard shape',2:'Formula',3:'Cases and signs',4:'Counting',5:'Proof',6:'Set up and solve'};
+var T={
+cx1:['Conjugate + cycle of 4',1],cx2:['Polar form',1],cx3:['Square root of a + ib',6],cx4:['Equate real and imaginary',6],cx5:['Quadratic formula with i',2],cx6:['ω identities',1],cx7:['Locus of z',6],
+ss1:['AP from two terms',6],ss2:['Sum of an AP, two answers',3],ss3:['Three terms in GP',6],ss4:['GP sum to infinity',2],ss5:['Rewrite as a GP',1],ss6:['Σn, Σn², Σn³',2],ss7:['AM–GM',2],ss8:['Multiply by r and subtract',1],
+pt1:['Distance formula',2],pt2:['Section formula',2],pt3:['Zero area',2],pt4:['Locus of a point',6],pt5:['Midpoints of diagonals',2],
+sl1:['Intercept form',1],sl2:['Normal form',1],sl3:['Perpendicular slopes',2],sl4:['Distance between parallels',2],sl5:['Foot of the perpendicular',6],sl6:['Family of lines',6],sl7:['Angle between lines, ±',3],
+ci1:['Complete the square',1],ci2:['Three points',6],ci3:['Diameter form',2],ci4:['Touching both axes, ±',3],ci5:['Distance = radius',2],ci6:['Centre on a line',6],
+cs1:['Read off a parabola',1],cs2:['Focus and directrix',2],cs3:['Read off an ellipse',1],cs4:['Ellipse from data',6],cs5:['Read off a hyperbola',1],cs6:['Hyperbola from data',6],
+td1:['Distances in space',2],td2:['Section formula in space',2],td3:['Centroid',2],td4:['Locus in space',6],
+pr1:['Addition rule',2],pr2:['Complement for "at least one"',3],pr3:['Sample space',4],pr4:['Count favourable cases',4],pr5:['Complement and union',2],pr6:['Odds',2],
+md1:['Mean deviation about the mean',2],md2:['Mean deviation about the median',2],md3:['Step deviation',2],md4:['Coefficient of variation',2],md5:['Rebuild the totals',1],
+se1:['Roster form, count subsets',4],se2:['Set operations',1],se3:['Two-set Venn',4],se4:['Three-set Venn',4],
+rf1:['Domain: what is forbidden',6],rf2:['Domain: what is forbidden',6],rf3:['Relation as pairs',4],rf4:['Combining functions',2],rf5:['Count relations',4],rf6:['Composition: inside first',2],rf7:['Modulus: two cases',3],
+tg1:['Arc = radius × angle',2],tg2:['Triangle + quadrant',3],tg3:['Reduce the angle',3],tg4:['Compound angles',2],tg5:['Sum to product',5],tg6:['Half angle + quadrant',3],tg7:['Prove a multiple-angle identity',5],tg8:['Allied angles',3],tg9:['t-formulas',2],
+te1:['General solution',6],te2:['Change to one function',6],te3:['a cos x + b sin x',1],te4:['Principal solutions',3],te5:['Make a product',6],
+mi1:['Induction',5],mi2:['Induction',5],
+qe1:['Discriminant = 0',6],qe2:['Sum and product of roots',2],qe3:['Form the equation',2],qe4:['Substitute to a quadratic',1],qe5:['Sign of a quadratic',3],qe6:['Square, then test roots',3],qe7:['Quadratic formula',2],qe8:['Complex roots',2],qe9:['Discriminant = 0, keep ±',3],
+pc1:['Fill the places',4],pc2:['Solve for n',6],pc3:['Repeated letters',4],pc4:['"At least": split cases',4],pc5:['ⁿCᵣ = ⁿCₙ₋ᵣ',4],
+bt1:['Expand',2],bt2:['General term',2],bt3:['General term, power 0',2],bt4:['Middle term',2],bt5:['Binomial for arithmetic',1],
+lm1:['Factor and cancel',1],lm2:['Rationalise',1],lm3:['(xⁿ − aⁿ)/(x − a)',2],lm4:['Turn into sin θ/θ',1],lm5:['Left and right limits',3],lm6:['sin θ/θ',1],
+dv1:['First principles',5],dv2:['Product rule',2],dv3:['Quotient rule',2],dv4:['Slope of a tangent',2],dv5:['Power rule',2],dv6:['First principles',5],
+mr1:['Converse and contrapositive',5],mr2:['Negation',5],
+co1:['Karl Pearson’s r',2],co2:['Spearman’s rank',2],
+ix1:['Aggregate index',2],ix2:['Weighted relatives',2],ix3:['Moving averages',2],
+r21:['Equivalence: three checks',5],r22:['One-one and onto',5],r23:['Composition',2],
+it1:['Principal values',3],it2:['Adding inverse tangents',2],it3:['Back into the principal range',3],
+mx1:['Row by column',2],mx2:['Substitute the matrix',2],mx3:['Symmetric + skew parts',1],mx4:['Equate entries',6],
+dt1:['Expand a determinant',2],dt2:['Area by determinant, ±',3],dt3:['Inverse by adjoint',2],dt4:['Matrix method',6],
+cd1:['Left = right = value',3],cd2:['Chain rule',2],cd3:['Implicit',2],cd4:['Take logs',1],cd5:['Parametric',2],
+ad1:['Rate of change',2],ad2:['Sign of f′',3],ad3:['Tangent and normal',2],ad4:['Derivative tests',3],ad5:['Optimise',6],
+ig1:['Substitution',1],ig2:['By parts',2],ig3:['Partial fractions',1],ig4:['Identity first',1],ig5:['Complete the square',1],
+di1:['Evaluate',2],di2:['f(a − x) property',1],di3:['Split at the corner',3],
+de1:['Order and degree',1],de2:['Separate variables',6],de3:['Integrating factor',2],de4:['Put y = vx',1],
+p21:['Conditional probability',2],p22:['Bayes’ theorem',2],p23:['Independence',2],p24:['Distribution and mean',4],
+vc1:['Unit vector',2],vc2:['Angle by dot product',2],vc3:['Area by cross product',2],vc4:['Projection',2],
+g31:['Direction cosines',2],g32:['Line in space',2],g33:['Angle between lines',2],g34:['Distance to a plane',2],
+ar1:['Area as an integral',2],ar2:['Area between curves',6],
+cm1:['Marginal revenue',2],cm2:['Maximise profit',6],
+lr1:['Regression line',2],lr2:['Two regression lines',6],
+lp1:['Corner points',6],lp2:['Form, then corner points',6]};
+function ov(){var o=null;try{o=(window.ROLE==='student'?S.tplx:JSON.parse(localStorage.getItem('sbTplx')||'null'))}catch(_){}return o||{}}
+function tp(id){var o=ov()[id];return o&&o[0]?o:(T[id]||null)}
+function setOv(id,v){if(window.ROLE==='student'){S.tplx=S.tplx||{};if(v)S.tplx[id]=v;else delete S.tplx[id];try{save()}catch(_){}}
+  else{var o=ov();if(v)o[id]=v;else delete o[id];try{localStorage.setItem('sbTplx',JSON.stringify(o))}catch(_){}}}
+var ED=null;
+window.tplEdit=function(){ED={n:tp(EXI)[0],f:tp(EXI)[1]};paint()};
+window.tplPick=function(f){if(!ED)return;var i=document.getElementById('tplN');if(i)ED.n=i.value;ED.f=f;paint()};
+window.tplSave=function(){var i=document.getElementById('tplN'),n=(i?i.value:ED.n).trim().slice(0,40);if(!n){showToast('Type a template name first.');return}setOv(EXI,[n,ED.f]);ED=null;paint();showToast('Template label saved.')};
+window.tplReset=function(){setOv(EXI,null);ED=null;paint();showToast('Back to the original label.')};
+window.tplCancel=function(){ED=null;paint()};
+function paint(){var b=document.getElementById('tplBox');if(b)b.outerHTML=box(EXI)}
+function box(id){var t=tp(id);if(!t)return'';var mine=!!(ov()[id]&&ov()[id][0]);
+  if(!ED)return'<div id="tplBox" style="margin:4px 0 6px"><span class="sub" style="font-size:.78rem">Template</span> '+chip(id,1)+' <span class="sub" style="font-size:.78rem">· '+esc(FAM[t[1]])+(mine?' · your label':'')+'</span> <button class="link" style="font-size:.8rem" onclick="tplEdit()">✎ Edit</button></div>';
+  return'<div id="tplBox" class="tpled"><label class="sub" for="tplN" style="font-size:.8rem">Template name</label><input id="tplN" maxlength="40" value="'+esc(ED.n)+'" style="width:100%;margin:2px 0 8px"><div class="sub" style="font-size:.8rem;margin-bottom:4px">Colour: what kind of move it is</div><div class="tplegend">'+Object.keys(FAM).map(function(k){return'<button class="tpc tf'+k+(+k===+ED.f?' on':'')+'" onclick="tplPick('+k+')" aria-pressed="'+(+k===+ED.f)+'">'+FAM[k]+'</button>'}).join('')+'</div><div class="row2" style="margin-top:8px"><button class="btn" onclick="tplSave()">Save</button><button class="btn alt" onclick="tplCancel()">Cancel</button></div>'+(T[id]?'<button class="link" style="margin-top:6px;font-size:.82rem" onclick="tplReset()">Reset to the original: '+esc(T[id][0])+'</button>':'')+'</div>'}
+function chip(id,big){var t=tp(id);if(!t)return'';return'<span class="tpc tf'+t[1]+(big?' big':'')+'" title="'+esc(FAM[t[1]])+' template">'+esc(t[0])+'</span>'}
+window.tplOf=function(id){var t=tp(id);return t?{n:t[0],f:t[1],fam:FAM[t[1]]}:null};
+function legend(){return'<div class="tplegend">'+Object.keys(FAM).map(function(k){return'<span class="tpc tf'+k+'">'+FAM[k]+'</span>'}).join('')+'</div>'}
+function put(){if(view!=='ex')return;
+  if(EXI){var q=app.querySelector('.qcard .ttl');if(q&&!document.getElementById('tplBox')){if(ED&&ED.id!==EXI)ED=null;q.insertAdjacentHTML('afterend',box(EXI))}if(ED)ED.id=EXI}
+  else{var rows=app.querySelectorAll('.trow[data-i]');rows.forEach(function(b){var tt=b.querySelector('.tt small');if(tt&&!b.querySelector('.tpc'))tt.insertAdjacentHTML('beforebegin',chip(b.dataset.i))});
+    var c=rows.length&&rows[0].closest('.card');if(c&&!app.querySelector('.tplegend'))c.insertAdjacentHTML('beforebegin','<div class="card"><b>Template colours</b><p class="sub" style="margin:2px 0 6px">Each example shows its template. The colour says what kind of move it is.</p>'+legend()+'</div>')}}
+if(typeof exOne==='function'){var _eo=exOne;exOne=function(){var r=_eo.apply(this,arguments);try{put()}catch(_){}return r}}
+var _r=render;render=function(){_r();try{put()}catch(_){}};
+var st=document.createElement('style');st.textContent='.tpc{display:inline-block;font-size:.76rem;font-weight:600;border-radius:20px;padding:2px 9px;margin:2px 4px 2px 0;border:1.5px solid;white-space:nowrap;vertical-align:middle;background:var(--card)}.tpc.big{font-size:.86rem;padding:3px 11px}.trow .tt .tpc{margin:3px 0 2px;display:table;white-space:normal}.tplegend{display:flex;flex-wrap:wrap;gap:4px}'+
+ '.tplegend button.tpc{cursor:pointer;font:inherit;font-size:.76rem;font-weight:600}.tplegend button.tpc.on{color:#fff}.tf1.on{background:#1c64c8}.tf2.on{background:#1f8a43}.tf3.on{background:#c2410c}.tf4.on{background:#7048e8}.tf5.on{background:#c2255c}.tf6.on{background:#0b7285}.tpled{border:1px solid var(--line);border-radius:12px;padding:10px;margin:6px 0}'+'.tf1{color:#1c64c8;border-color:#1c64c8}.tf2{color:#1f8a43;border-color:#1f8a43}.tf3{color:#c2410c;border-color:#c2410c}.tf4{color:#7048e8;border-color:#7048e8}.tf5{color:#c2255c;border-color:#c2255c}.tf6{color:#0b7285;border-color:#0b7285}';document.head.appendChild(st);
+try{render()}catch(_){}
+})();
+/*TPLTAG-END*/
 </script>
 
+<script>window.__boot=0;try{render()}catch(e){}</script>
 </body></html>

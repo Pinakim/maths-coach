@@ -4,8 +4,9 @@ This repo is worked on from two devices: a phone (Claude Code on claude.ai/code 
 
 ## What's here
 
-- `study-buddy.html`: **Study Buddy**, the main app. It's a single page, about 2.3 MB, published as a claude.ai artifact:
+- `study-buddy.html`: **Study Buddy**, the main app and the single source file (about 2.7 MB). It's published as a claude.ai artifact:
   **https://claude.ai/artifact/Mg1ofXxuYQaYbqB14ZzXqQ**
+- `tools/build.py` turns it into `dist/`: `index.html` plus `js/sbNN.<hash>.js` script files. **The artifact is published from `dist/`, not from the single file**, so phones cache the scripts and the app opens faster. Never edit `dist/` by hand; edit `study-buddy.html` and rebuild.
 - `index.html`: the older "Maths Coach Practice" page. Leave it alone unless the user asks.
 - The user sometimes types "Sutu Buddy"; that means Study Buddy.
 - `my-syllabus-11.md`: the syllabus for the school-exam subjects (maths, economics, political science, sociology, English papers), as a text reference. Check it for chapter scope before building exam content.
@@ -23,10 +24,10 @@ The `main` branch on GitHub is the master copy. The artifact is its published fo
 
 1. **Start: sync first.**
    - Laptop: `git pull --ff-only origin main`.
-   - Read the live artifact and compare it with `study-buddy.html` at `HEAD`. If the artifact is newer, it was published without a commit: commit that version first, then carry on.
+   - Compare the live artifact with `HEAD`: run `python3 tools/build.py`, then compare the artifact's file list (`list_files`, with sha256) with `dist/`. If the artifact is newer, it was published without a commit: rebuild `study-buddy.html` from the artifact's files (put each `js/` file back inline in place of its `<script src>` tag), commit that, then carry on.
 2. **Work.** Edit `study-buddy.html` and test it.
 3. **Finish: do both, together, in this order.**
-   - Publish `study-buddy.html` to the **same** artifact link above. Never publish a new artifact, and don't change its capabilities or sharing.
+   - Run `python3 tools/build.py`, then publish every file in `dist/` to the **same** artifact link above with `publish_files` in mode `replace` (`index.html` as `index.html`, each script as `js/<name>`), so old script files are removed. Never publish a new artifact, and don't change its capabilities or sharing.
    - Run `bash .claude/hooks/mark-published.sh`. It records the published version in `.published-sha`.
    - Commit everything, including `.published-sha`, with a message saying what changed for the user, then push to `main`.
 4. Only one device works at a time. Finish step 3 before the user switches devices. If a push is rejected because `main` moved, pull, merge, re-test, then push and publish.
@@ -42,7 +43,8 @@ The `main` branch on GitHub is the master copy. The artifact is its published fo
 - It's one large HTML file with some very long lines (40 to 120 KB each). Make targeted string replacements and check that each one matches exactly once. Don't rewrite whole lines from memory.
 - New features are mostly added as separate `<script>` modules that wrap earlier functions (`render`, `save`, `useAs` and so on). Later modules override earlier ones, so read the latest wrapper before you change behaviour.
 - The scripts are classic `<script>` tags sharing global variables (`S`, `view`, `DOC`, `CR`, `push`, `ROLE`, `GRP`, `SBPID`...). Note that `DB` is overwritten by the Doubt module; use `window.SBDB` for the database.
-- After editing, check the syntax of the changed `<script>` (for example with `node --check` on the extracted script), and test by serving the folder with `python -m http.server`. Outside claude.ai, `claude.use()` is missing, so cloud saving is off and the app uses browser storage only.
+- Start-up: the first script sets `window.__boot=1`, which makes the base `render()` do nothing while the modules load; the last inline script sets it to 0 and draws the screen once. A module that needs the DOM at load time should wait for that first render.
+- After editing, check the syntax of the changed `<script>` (for example with `node --check` on the extracted script), and test by serving the folder with `python -m http.server` (test both `study-buddy.html` and `dist/index.html`). Outside claude.ai, `claude.use()` is missing, so cloud saving is off and the app uses browser storage only.
 
 ## How the app stores data (don't break these)
 
