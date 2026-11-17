@@ -1052,3 +1052,101 @@ var st=document.createElement('style');st.textContent='.tpc{display:inline-block
 try{render()}catch(_){}
 })();
 /*TPLTAG-END*/
+
+;
+
+/*PACE-START*/
+/* PACE: can the student map a question to a template, and how long does it take.
+   Additive module. Wraps stDrill, stPick and render. Reads S.ev; adds a "Pace and patterns" screen under More. */
+(function(){
+try{
+var SPOT_PAR=20000; /* app's estimate: 20 s to spot a pattern */
+function parQ(l){l=Math.max(1,Math.min(3,+l||1));return(60+30*l)*1000} /* app's estimate: 90, 120, 150 s by level */
+function med(a){if(!a.length)return null;var b=a.slice().sort(function(x,y){return x-y}),m=b.length>>1;return b.length%2?b[m]:(b[m-1]+b[m])/2}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function fmt(ms){if(ms==null)return '–';var s=Math.round(ms/1000);return s<60?s+' s':Math.floor(s/60)+' min '+(s%60)+' s'}
+
+/* 1. exact time to spot a pattern */
+var _d=window.stDrill;
+if(typeof _d==='function'){window.stDrill=function(){var r=_d.apply(this,arguments);try{if(STV&&STV.dr&&STV.dr.pick==null)window.__paceT0=Date.now()}catch(e){}return r}}
+var _p=window.stPick;
+if(typeof _p==='function'){window.stPick=function(k){
+  var pid=null,c=null,chosen=null,t0=null,now=Date.now();
+  try{var d=STV.dr;if(d&&d.pick==null){var it=d.q[d.i];pid=it.pid;c=d.c;chosen=d.o[k];t0=window.__paceT0||null}}catch(e){}
+  var r=_p.apply(this,arguments);
+  try{if(pid){var e=S.ev[S.ev.length-1];if(e&&e.k==='sp'&&e.ts>=now){e.pid=pid;e.pick=chosen;e.c=c;if(t0&&now-t0>0&&now-t0<600000)e.ms=now-t0;save()}}}catch(e2){}
+  return r}}
+
+/* 2. read the data */
+function data(){
+  var ev=(typeof S!=='undefined'&&S&&S.ev)||[],sp={},qs=[],prev=null;
+  ev.forEach(function(e){
+    if(!e||!e.ts)return;
+    if(e.k==='sp'&&e.pid){var o=sp[e.pid]||(sp[e.pid]={pid:e.pid,n:0,ok:0,ms:[]});o.n++;if(e.ok)o.ok++;if(e.ms)o.ms.push(e.ms)}
+    if(e.k==='q'&&typeof e.ok==='boolean'&&!/mock|past paper/.test(e.type||'')){
+      var gap=prev?e.ts-prev:null;
+      if(gap!=null&&gap>=3000&&gap<=300000)qs.push({ok:e.ok,ms:gap,l:e.l,key:e.topic||e.tag||'Practice'})}
+    prev=e.ts});
+  return{sp:sp,qs:qs}}
+function patInfo(pid){try{var r=stFind(pid);return r?{n:r.p[1],c:r.c.n}:{n:pid,c:''}}catch(e){return{n:pid,c:''}}}
+function zone(o){
+  if(o.n<2)return{t:'Too few tries so far',c:'var(--muted)',o:3};
+  var acc=o.ok/o.n,m=med(o.ms);
+  if(acc<0.6)return{t:'Not mapped yet: practise Spot',c:'var(--bad)',o:0};
+  if(m!=null&&m>SPOT_PAR*1.5)return{t:'Mapped, but slow',c:'#e8a317',o:1};
+  return{t:'Mapped and fast',c:'var(--ok,#2a8)',o:2}}
+
+/* 3. the screen */
+function paceView(){
+  var D=data(),h='<div class="tdhd"><h1>Pace and patterns</h1></div><p class="sub">Two questions. Can you tell which template a question belongs to? And how long does it take?</p>';
+  h+='<p class="back"><button class="link" onclick="goView(\'mm\')">← More</button></p>';
+  /* spotting */
+  var ids=Object.keys(D.sp);
+  h+='<div class="card"><b>1 · Spotting the template</b>';
+  if(!ids.length){
+    h+='<p class="sub" style="margin:6px 0">Nothing yet. Open <b>Which method fits?</b> in Quick prep, choose a chapter and try its pattern spotter. Each answer is timed.</p><button class="btn" onclick="goView(\'st\')">Open Which method fits?</button>'
+  }else{
+    var rows=ids.map(function(id){var o=D.sp[id],z=zone(o),pi=patInfo(id);return{o:o,z:z,pi:pi}}).sort(function(a,b){return a.z.o-b.z.o||b.o.n-a.o.n});
+    h+='<p class="sub" style="margin:6px 0">Not mapped means you did not name the right pattern. That is fresh ground: you are solving without a template. Mapped but slow means the template is known but takes time to run.</p>';
+    rows.forEach(function(r){var m=med(r.o.ms);
+      h+='<div style="border-top:1px solid var(--line);padding:8px 0"><b>'+esc(r.pi.n)+'</b> <small style="color:var(--muted)">'+esc(r.pi.c)+'</small><br><span style="color:'+r.z.c+';font-weight:600">'+esc(r.z.t)+'</span><br><small>'+r.o.ok+' of '+r.o.n+' right'+(m!=null?' · usual time to spot '+fmt(m)+' (par '+fmt(SPOT_PAR)+')':'')+'</small></div>'});
+    h+='<button class="btn alt" style="margin-top:8px" onclick="goView(\'st\')">Practise spotting</button>'}
+  h+='</div>';
+  /* solving pace */
+  var qs=D.qs;
+  h+='<div class="card"><b>2 · Solving pace</b>';
+  if(qs.length<5){
+    h+='<p class="sub" style="margin:6px 0">Needs about 5 timed questions. So far: '+qs.length+'. Do a Quick round on a chapter and come back.</p>'
+  }else{
+    var all=qs.map(function(q){return q.ms}),m=med(all),pars=med(qs.map(function(q){return parQ(q.l)})),ratio=m/pars;
+    var band=ratio<=1.1?'Within par':ratio<=1.5?'A little slow':'Slow';
+    h+='<p style="margin:6px 0"><b>'+fmt(m)+'</b> per question, usual. Par (the app\'s estimate): '+fmt(pars)+'. <b>'+band+'</b>.</p>';
+    if(qs.length>=12){var last=all.slice(-10),before=all.slice(-20,-10),a=med(last),b=before.length>=5?med(before):null;
+      if(b!=null){var dlt=Math.round((b-a)/1000);h+='<p class="sub" style="margin:2px 0 6px">Compared with your earlier questions: '+(Math.abs(dlt)<5?'about the same.':dlt>0?'faster by about '+dlt+' s.':'slower by about '+(-dlt)+' s.')+'</p>'}}
+    var by={};qs.forEach(function(q){(by[q.key]=by[q.key]||[]).push(q)});
+    var list=Object.keys(by).filter(function(k){return by[k].length>=3}).map(function(k){var L=by[k];return{k:k,n:L.length,m:med(L.map(function(q){return q.ms})),p:med(L.map(function(q){return parQ(q.l)})),acc:Math.round(100*L.filter(function(q){return q.ok}).length/L.length)}}).sort(function(a,b){return b.m/b.p-a.m/a.p}).slice(0,5);
+    if(list.length){h+='<p class="sub" style="margin:8px 0 2px">Where time goes (slowest first, 3 or more questions):</p>';
+      list.forEach(function(x){h+='<div style="border-top:1px solid var(--line);padding:6px 0"><b>'+esc(x.k)+'</b><br><small>'+fmt(x.m)+' (par '+fmt(x.p)+') · '+x.acc+'% right · '+x.n+' questions</small></div>'})}
+  }
+  h+='</div>';
+  /* population */
+  h+='<div class="card"><b>3 · Compared with other students</b><p class="sub" style="margin:6px 0">Not shown yet. A percentile needs timings from many students, and the app has only a few. Until then the app compares you with your own earlier times and with par.</p></div>';
+  h+='<p class="sub">How it is timed: spotting is timed exactly. Other questions are timed from the previous answer, and pauses over 5 minutes are ignored. Speed only matters when the answer is right.</p>';
+  app.innerHTML=h}
+window.paceView=paceView;
+
+/* 4. a row under More */
+var ROW='<button class="trow pacerow" onclick="goView(\'pace\')"><span class="tn">⏱</span><span class="tt"><b>Pace and patterns</b><small>Can you spot the template, and how fast</small></span></button>';
+function addRow(){
+  if(typeof app==='undefined'||app.querySelector('.pacerow'))return;
+  var b=app.querySelectorAll('.trow'),at=null;
+  for(var i=0;i<b.length;i++){if(/Progress/.test(b[i].textContent)){at=b[i];break}}
+  if(at)at.insertAdjacentHTML('afterend',ROW)}
+try{var G=GRP.maths;if(G&&!G.some(function(t){return t[0]==='pace'}))G.push(['pace','Pace']);
+if(window.MSEC)MSEC.forEach(function(s){if(s[0]==='rev'&&s[2].indexOf('pace')<0)s[2].push('pace')});
+if(typeof SECN!=='undefined')SECN.pace='Pace and patterns'}catch(e){}
+var _r=window.render;
+window.render=function(){var r=_r.apply(this,arguments);try{if(view==='pace')paceView();else if(view==='mm')addRow()}catch(e){}return r};
+}catch(err){try{console.log('pace module not loaded',err)}catch(x){}}
+})();
+/*PACE-END*/
