@@ -298,6 +298,7 @@ function repText(s,st,days){var x=stats(st,days),t='Study Buddy progress report\
   if(ch.length){t+='\nBy chapter (weakest first):\n';ch.slice(0,10).forEach(function(k){t+='• '+k+': '+x.by[k][0]+'/'+x.by[k][1]+'\n'})}
   t+='\nGoing well: '+(x.strong.join(', ')||(x.q>=6?'no chapter above 80% yet':'not enough answers yet'))+'\nNeeds work: '+(x.weak.join(', ')||'nothing stands out')+'\n';
   t+='Mistakes: '+x.mkNew+' new, '+x.mkFix+' fixed, '+x.mkOpen+' still open\n';
+  try{var pt=withS(st,function(){return window.prepSumText?prepSumText(days):''});if(pt)t+=pt}catch(e){}
   t+='\nSuggested focus for the next session: '+(x.weak[0]||(x.q?'mixed revision':'getting started with a first practice round'))+'.';
   return t}
 function fetchSt(id){if(TLD[id])return;TLD[id]=1;loadSt(id).then(function(st){TST[id]={st:st||{},at:now()};TLD[id]=0;if(ROLE==='tutor'&&(view==='tut'||view==='trep'))render()})}
@@ -309,6 +310,7 @@ function tutView(){var h='<h1>Students</h1><p class="sub">Each student chooses w
     h+='<div class="card pf-stu" style="border-left-color:'+s.col+'"><div class="setrow"><b>'+e_(s.name)+'</b><span class="pf-idle">'+(x&&x.last?'Active '+mkWhen(x.last):x?'Not started yet':'')+'</span></div>';
     if(s.share){if(!x)h+='<p class="sub" style="margin:6px 0">Loading progress…</p>';
       else{h+='<div class="pf-meta"><span>'+x.pc+'% maths covered</span><span>'+(x.sec?mins(x.sec):'0 min')+' this week</span><span>'+(x.acc!=null?x.acc+'% right':'no answers this week')+'</span></div>';
+        try{var ps=withS(d.st,function(){return window.prepSum?prepSum(7):null});if(ps)h+='<div class="pf-meta"><span><b>Exam prep:</b> '+ps.u+'/800 parts</span><span>likely '+ps.e+'/80</span><span>'+ps.sets+' sets, '+ps.min+' min this week</span></div>'+ps.wk.filter(function(w){return w.t.st==='up'||w.t.st==='down'||w.t.weak}).map(function(w){return'<span class="mtag '+(w.t.st==='down'?'ok':'bad')+'">'+e_(w.n)+': '+e_(w.t.lbl.toLowerCase())+'</span>'}).join('')}catch(e){}
         h+=x.weak.map(function(k){return'<span class="mtag bad">'+e_(k)+'</span>'}).join('')+x.strong.map(function(k){return'<span class="mtag ok">'+e_(k)+'</span>'}).join('')}
       h+='<div class="row2"><button class="btn" onclick="sbPf.topen(\''+s.id+'\')">Open progress</button><button class="btn alt" onclick="sbPf.trep(\''+s.id+'\')">Make report</button></div>'}
     else h+='<p class="sub" style="margin:6px 0">Not shared. '+e_(s.name)+' has not turned on sharing in Settings, so nothing is shown.</p>';

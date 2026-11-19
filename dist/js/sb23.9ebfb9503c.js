@@ -239,6 +239,17 @@ function card(){var T=tot(),s=suggest(),d=dayRec();
    '<div class="pbar"><i style="width:'+(T.u/8)+'%"></i></div><p class="sub" style="margin:6px 0 0">'+daysLeft()+' days to the final · today '+d.sets+' set'+(d.sets===1?'':'s')+', '+Math.round(d.min)+' of 40 min</p>'+
    '<div class="row2"><button class="btn" onclick="prepGo(\''+s+'\')">Suggested: '+esc(cw(s)[1])+'</button><button class="btn alt" onclick="prepOpen()">Choose a chapter</button></div></div>'}
 window.prepCard=card;
+window.prepSum=function(days){var p=P(),from=Date.now()-days*864e5,T=tot(),L=(p.log||[]).filter(function(x){return x.t>=from});
+  var min=0,act=0;Object.keys(p.day||{}).forEach(function(k){var a=k.split('-'),t=new Date(+a[0],+a[1]-1,+a[2],12).getTime();if(t>=from-864e5/2){min+=p.day[k].min||0;if(p.day[k].sets)act++}});
+  var by={};L.forEach(function(x){by[x.c]=by[x.c]||{n:0,r:0,q:0};if(x.k!=='em')by[x.c].n++;by[x.c].r+=x.sc;by[x.c].q+=x.n});
+  var chs=Object.keys(by).map(function(id){var sg=stage(id);return{n:cw(id)[1],sets:by[id].n,r:by[id].r,q:by[id].q,where:sg==='concepts'?'step 1, concepts':sg==='templates'?'step 2, example types':'step 3, level '+C(id).lv}});
+  var wk2=WK.map(function(w){var t=wtrend(w[0]);return{n:w[1],t:t}}).filter(function(x){return x.t.st!=='new'});
+  return{u:T.u,e:T.e,sets:L.filter(function(x){return x.k!=='em'}).length,matches:L.filter(function(x){return x.k==='em'}).length,min:Math.round(min),act:act,chs:chs,wk:wk2}};
+window.prepSumText=function(days){var x=prepSum(days),t='\nExam prep (final maths paper)\nCovered: '+x.u+' of 800 parts · likely '+x.e+' of 80 marks\n';
+  t+='Last '+days+' days: '+x.sets+' set'+(x.sets===1?'':'s')+(x.matches?', '+x.matches+' template match'+(x.matches===1?'':'es'):'')+', '+x.min+' min on '+x.act+' day'+(x.act===1?'':'s')+'\n';
+  if(x.chs.length){t+='Chapters worked on:\n';x.chs.forEach(function(c){t+='• '+c.n+': '+c.sets+' set'+(c.sets===1?'':'s')+', '+(c.r%1?c.r.toFixed(1):c.r)+'/'+c.q+' right, now at '+c.where+'\n'})}
+  if(x.wk.length){t+='Weak spots:\n';x.wk.forEach(function(w){t+='• '+w.n+': '+w.t.lbl+(w.t.ra!=null?' (recent '+Math.round(w.t.ra*100)+'% right, before '+Math.round(w.t.oa*100)+'%)':'')+'\n'})}
+  return t};
 window.prepHow=function(){var p=P();if(!p.howSeen){p.howSeen=1;save()}};
 window.prepOpen=function(){V={v:'home'};goView('prep')};
 window.prepGo=function(id){V={v:'ch',id:id};if(view!=='prep')goView('prep');else{render();window.scrollTo(0,0)}};
@@ -315,7 +326,7 @@ function emView(){var Z=V,c=cw(Z.id),e=Z.e,tp=Z.tp;
     h+=(ok?'<button class="btn" onclick="prepSolve(\''+Z.id+'\',\''+e.id+'\')">Now solve it with the template</button>':'<button class="btn" onclick="prepEx(\''+Z.id+'\',\''+e.id+'\')">Try the match again</button><button class="btn alt" onclick="prepSolve(\''+Z.id+'\',\''+e.id+'\')">Solve it anyway</button>')+
      (tp?'<button class="btn alt" onclick="tlOpen(\''+tp.c+'\',\''+tp.id+'\')">Open the template with a worked example</button>':'')}
   h+='</div>';app.innerHTML=h}
-window.prepEm=function(i){var Z=V;Z.pick=i;var cc=C(Z.id);wlog('plan',i===Z.a?1:0,Z.id);if(i===Z.a)cc.em[Z.e.id]=1;else try{mkAdd({src:'Preparation tracker',topic:cw(Z.id)[1],q:'Which template fits?\n'+Z.e.q,o:Z.o,a:Z.a,pick:i,habit:'',h:Z.tp?Z.tp.w:Z.e.t,ref:'prepem:'+Z.e.id})}catch(e){}save();render()};
+window.prepEm=function(i){var Z=V;Z.pick=i;var cc=C(Z.id);wlog('plan',i===Z.a?1:0,Z.id);plog(Z.id,'em',i===Z.a?1:0,1);try{S.ev.push({k:'q',topic:cw(Z.id)[1],ok:i===Z.a,habit:'',type:'prep',ts:Date.now()})}catch(e){}if(i===Z.a)cc.em[Z.e.id]=1;else try{mkAdd({src:'Preparation tracker',topic:cw(Z.id)[1],q:'Which template fits?\n'+Z.e.q,o:Z.o,a:Z.a,pick:i,habit:'',h:Z.tp?Z.tp.w:Z.e.t,ref:'prepem:'+Z.e.id})}catch(e){}save();render()};
 window.prepSolve=function(id,eid){var e=BX.filter(function(x){return x.id===eid})[0];if(!e)return;P().ret=id;save();baseGo(e)};
 window.prepBack=function(){var id=P().ret;P().ret=null;save();if(id){var m=tmast(id);if(stage(id)==='templates'&&m.t&&m.n>=m.t){C(id).stg='prep';save();try{showToast('Every example type is done. The preparation check is open.')}catch(e){}}prepGo(id)}else prepOpen()};
 window.prepTeach=function(id){var L=concepts(id);openChat(chatHead()+'I have not learnt the chapter "'+cw(id)[1]+'" in class yet. Teach me its main ideas one at a time, starting from what I already know, with a short example for each, and check my understanding with a question before moving on:\n- '+L.map(function(k){return k.n+': '+(k.s||'')}).join('\n- '))};
@@ -343,7 +354,7 @@ window.prepLearn=function(id,kd){var qs=kd==='c'?conceptItems(id):tplItems(id);
   V={v:'set',id:id,kd:kd,lv:0,qs:qs,i:0,r:[],t0:Date.now(),show:false,pick:null};render();window.scrollTo(0,0)};
 function finishLearn(){var Z=V,cc=C(Z.id),sc=0,kd=Z.kd,M=kd==='c'?cc.ck:cc.tk,WS=wSet(Z);
   Z.qs.forEach(function(q,i){var ok=(Z.r[i]||0)>=1,key=kd==='c'?q.kc:q.tp;sc+=ok?1:0;M[key]=ok?Math.min(2,(M[key]||0)+1):0;(kd==='c'?cc.cs:cc.ts)[q.id]=Date.now()});
-  var m=kd==='c'?cmast(Z.id):tmast(Z.id),done=m.t&&m.n>=m.t,msg;
+  plog(Z.id,kd,sc,Z.qs.length);var m=kd==='c'?cmast(Z.id):tmast(Z.id),done=m.t&&m.n>=m.t,msg;
   if(done){if(kd==='c'){cc.stg=exTypes(Z.id).length?'templates':'prep';msg='All '+m.t+' concepts are secure. '+(cc.stg==='templates'?'Step 2 is open: every example type, matched with its template.':'The preparation check is open.')}else{cc.stg='prep';msg='All '+m.t+' templates are secure. The preparation check is open: level 1 first.'}}
   else msg=m.n+' of '+m.t+' '+(kd==='c'?'concepts':'templates')+' secure. 2 right in a row secures one.';
   try{Z.qs.forEach(function(q,i){if((Z.r[i]||0)<1)mkAdd({src:'Preparation tracker',topic:cw(Z.id)[1],q:q.q,o:q.o,a:q.a,pick:null,habit:'',h:q.ans,ref:'prep:'+q.id})})}catch(e){}
@@ -392,11 +403,12 @@ window.prepWhy=function(k){var Z=V;Z.why=Z.why||{};var a=Z.why[Z.i]=Z.why[Z.i]||
 window.prepMark=function(f){V.r[V.i]=f;render()};
 window.prepNext=function(){if(V.i+1<V.qs.length){V.i++;V.show=false;V.pick=null;render();window.scrollTo(0,0)}else if(V.kd)finishLearn();else finish()};
 window.prepAsk=function(){var q=V.qs[V.i];var T=qTags(q,V.id);openChat(chatHead()+(T.length?'My weak spot here: '+T.map(function(k){return wk(k)[1]+' ('+wk(k)[2]+')'}).join('; ')+'. Please watch for it.\n':'')+'Chapter: '+cw(V.id)[1]+'\nQuestion: '+q.q+(q.o?'\nOptions: '+q.o.join(' | '):'')+'\nWorked answer from my app:\n'+q.ans+'\n\nHelp me understand where I might go wrong, then give me one similar question to try.')};
-function wSet(Z){var seen={};Z.qs.forEach(function(q,i){var v=Z.r[i]||0,T=qTags(q,Z.id);T.forEach(function(k){wlog(k,v,Z.id);seen[k]=seen[k]||[0,0];seen[k][0]+=v;seen[k][1]++});
+function plog(id,kd,sc,n){var p=P();if(!p.log)p.log=[];p.log.push({c:id,k:kd,sc:sc,n:n,t:Date.now()});if(p.log.length>500)p.log=p.log.slice(-500)}
+function wSet(Z){var seen={};Z.qs.forEach(function(q,i){var v=Z.r[i]||0,T=qTags(q,Z.id);try{S.ev.push({k:'q',topic:cw(Z.id)[1],ok:v>=1,habit:'',type:'prep',ts:Date.now()})}catch(e){}T.forEach(function(k){wlog(k,v,Z.id);seen[k]=seen[k]||[0,0];seen[k][0]+=v;seen[k][1]++});
     ((Z.why||{})[i]||[]).forEach(function(k){if(k==='idea'||T.indexOf(k)>=0)return;wlog(k,0,Z.id);seen[k]=seen[k]||[0,0];seen[k][1]++})});
   var ks=Object.keys(seen);if(!ks.length)return'';return'<div class="card"><b>Weak spots in this set</b>'+ks.map(function(k){var t=wtrend(k),s=seen[k];return'<div class="wrow"><span><b>'+esc(wk(k)[1])+'</b><small>This set: '+(s[0]%1?s[0].toFixed(1):s[0])+' of '+s[1]+' right</small></span>'+wPill(t)+'</div>'}).join('')+'</div>'}
 function finish(){var Z=V,cc=C(Z.id),l=Z.lv,sc=0;Z.r.forEach(function(x){sc+=x||0});var WS=wSet(Z);var n=Z.qs.length,f=sc/n,u0=units(Z.id),t0=tot().u;
-  cc.sets.push({lv:l,sc:sc,n:n,ts:Date.now()});if(cc.sets.length>60)cc.sets=cc.sets.slice(-60);
+  cc.sets.push({lv:l,sc:sc,n:n,ts:Date.now()});plog(Z.id,'p'+l,sc,n);if(cc.sets.length>60)cc.sets=cc.sets.slice(-60);
   Z.qs.forEach(function(q,i){if(cc.seen.indexOf(q.q)<0)cc.seen.push(q.q);var mi=cc.miss.indexOf(q.q);if((Z.r[i]||0)<1){if(mi<0)cc.miss.push(q.q)}else if(mi>=0)cc.miss.splice(mi,1)});
   cc.seen=cc.seen.slice(-80);cc.miss=cc.miss.slice(-12);
   var full=n>=4,pass=full&&f>=.8,msg;if(pass){cc.best[l-1]=1;if(l<3){cc.lv=l+1;msg='Level '+l+' passed. The next set is at level '+(l+1)+'.'}else msg='Level 3 passed: this chapter is at exam standard. Keep a set every few days so it stays there.'}
