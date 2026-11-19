@@ -239,10 +239,18 @@ function card(){var T=tot(),s=suggest(),d=dayRec();
    '<div class="pbar"><i style="width:'+(T.u/8)+'%"></i></div><p class="sub" style="margin:6px 0 0">'+daysLeft()+' days to the final · today '+d.sets+' set'+(d.sets===1?'':'s')+', '+Math.round(d.min)+' of 40 min</p>'+
    '<div class="row2"><button class="btn" onclick="prepGo(\''+s+'\')">Suggested: '+esc(cw(s)[1])+'</button><button class="btn alt" onclick="prepOpen()">Choose a chapter</button></div></div>'}
 window.prepCard=card;
+window.prepHow=function(){var p=P();if(!p.howSeen){p.howSeen=1;save()}};
 window.prepOpen=function(){V={v:'home'};goView('prep')};
 window.prepGo=function(id){V={v:'ch',id:id};if(view!=='prep')goView('prep');else{render();window.scrollTo(0,0)}};
 function home(){var T=tot(),s=suggest(),w=PLN.W[weekIx()],d=dayRec();
   var h='<h1>Final exam: '+daysLeft()+' days to go</h1><p class="sub">Which chapter today? Each chapter goes in three steps: build the concepts, work every example type with its template, then the preparation check.</p>';
+  h+='<details class="card prhow"'+(P().howSeen?'':' open')+' ontoggle="prepHow()"><summary><b>How exam prep works</b> <span class="sub">(tap to '+(P().howSeen?'open':'close')+')</span></summary><ol>'+
+   '<li><b>Choose a chapter</b> below. Any chapter, any day; the suggested one is marked.</li>'+
+   '<li><b>Step 1, Build concepts:</b> each idea of the chapter, one question at a time, until every idea is secure.</li>'+
+   '<li><b>Step 2, Example types with templates:</b> for each kind of example, pick the character (template) that fits, then solve it in the worked-example screen.</li>'+
+   '<li><b>Step 3, Preparation check:</b> sets of 5 at three levels, like Sections A, B–C and D. This fills the 800 parts and the likely marks.</li>'+
+   '<li><b>Weak spots</b> are watched in every answer: see below whether each is getting smaller or bigger.</li>'+
+   '<li>Come back here any time with the <b>Exam prep</b> tab at the top. About 40 minutes a day.</li></ol></details>';
   h+='<div class="card hi"><div class="eyebrow">Choose a chapter</div><div class="pchips">'+CH.map(function(c){var sg=stage(c[0]),n=STGN.indexOf(sg)+1;return'<button onclick="prepGo(\''+c[0]+'\')"'+(c[0]===s?' class="sug"':'')+'><b>'+esc(c[1])+'</b><small>Step '+n+(c[0]===s?' · suggested':'')+'</small></button>'}).join('')+'</div></div>';
   h+='<div class="card hi"><div class="pghd"><div><b class="pgbig">'+T.u+'</b> <span class="sub">of 800 parts covered</span></div><div style="text-align:right"><b class="pgbig">'+T.e+'</b> <span class="sub">of 80 likely</span></div></div>'+grid()+
    '<p class="sub" style="margin:8px 0 0">Each square is a tenth of a mark, filled by the preparation check. Pale squares are chapters not taught in class yet ('+(80-T.tm)+' marks): learn them first with steps 1 and 2. Likely marks come from your last two sets at each level.</p>'+
@@ -265,7 +273,7 @@ function steps(id){var sg=stage(id),cm=cmast(id),tm=tmast(id),ix=STGN.indexOf(sg
     return'<button class="'+(cur?'cur':d?'done':'')+'" onclick="prepStg(\''+id+'\',\''+k+'\')"><b>'+(d?'✓ ':(i+1)+'. ')+STGL[i]+'</b><small>'+sm+'</small></button>'}).join('')+'</div>'}
 window.prepStg=function(id,k){C(id).stg=k;save();render()};
 function chView(id){var c=cw(id),cc=C(id),on=taught(id),u=units(id),k=likely(id),sg=stage(id),m=MP[id]||{};
-  var h='<p class="back"><button class="link" onclick="prepOpen()">← Preparation tracker</button></p><h1>'+esc(c[1])+'</h1><p class="sub">Term '+c[3]+' · about '+c[2]+' of the 80 marks · '+c[2]*10+' parts'+(on?'':' · not taught in class yet')+'</p>';
+  var h='<p class="back"><button class="link" onclick="prepOpen()">← All chapters</button></p><h1>'+esc(c[1])+'</h1><p class="sub">Term '+c[3]+' · about '+c[2]+' of the 80 marks · '+c[2]*10+' parts'+(on?'':' · not taught in class yet')+'</p>';
   h+=steps(id);
   if(sg==='concepts'){var L=concepts(id),cm=cmast(id);
     h+='<div class="card hi"><b>Step 1 · Build concepts</b><p class="sub" style="margin:4px 0 8px">Each idea the chapter rests on, one at a time. Read the idea, answer a question on it, then read why the answer is right. An idea is secure after 2 right in a row.</p>'+
@@ -403,7 +411,7 @@ function finish(){var Z=V,cc=C(Z.id),l=Z.lv,sc=0;Z.r.forEach(function(x){sc+=x||
 /* ---------- the suggested plan ---------- */
 window.prepPlan=function(){V={v:'plan'};render();window.scrollTo(0,0)};
 function planView(){var wi=weekIx();
-  var h='<p class="back"><button class="link" onclick="prepOpen()">← Preparation tracker</button></p><h1>Suggested plan to 31 January</h1><p class="sub">40 minutes a day. This is a suggestion: any chapter can be chosen on any day, and the tracker keeps each chapter’s progress.</p>';
+  var h='<p class="back"><button class="link" onclick="prepOpen()">← All chapters</button></p><h1>Suggested plan to 31 January</h1><p class="sub">40 minutes a day. This is a suggestion: any chapter can be chosen on any day, and the tracker keeps each chapter’s progress.</p>';
   h+='<div class="card hi"><b>Four exam rules</b><ol style="margin:6px 0 0;padding-left:1.3em">'+PLN.rules.map(function(r){return'<li style="margin:6px 0"><b>'+esc(r[0])+'.</b> '+esc(r[1])+'</li>'}).join('')+'</ol></div>';
   h+='<div class="card"><b>Pace for the 3-hour paper</b>'+PLN.pace.map(function(p){return'<div class="tbar"><span>'+esc(p[0])+(p[1]?' · '+esc(p[1]):'')+'</span><b>'+esc(p[2])+'</b></div>'}).join('')+'<p class="sub" style="margin:6px 0 0">'+esc(PLN.paceNote)+'</p></div>';
   h+='<div class="card"><b>A 40-minute day</b><ul style="margin:6px 0 0;padding-left:1.2em"><li>5 min: one formula card from the chapter</li><li>25 min: one or two sets in the tracker, written in the notebook</li><li>10 min: redo every “Not yet” question from the day</li></ul></div>';
@@ -419,9 +427,13 @@ try{var G=GRP.maths;if(G&&!G.some(function(t){return t[0]==='prep'}))G.splice(1,
   if(typeof SECN!=='undefined')SECN.prep='Preparation tracker'}catch(e){}
 var OPENED=false;var _rP=render;render=function(){if(view==='prep'){_rP();try{if(V.v==='ch')chView(V.id);else if(V.v==='em')emView();else if(V.v==='set')setView();else if(V.v==='plan')planView();else home()}catch(e){console.error(e);home()}return}
   var RL=typeof ROLE!=='undefined'?ROLE:window.ROLE;if(!OPENED&&(view==='qp'||view==='today')&&RL!=='tutor'&&RL!=='pending'&&!document.getElementById('whoScr')){OPENED=true;view='prep';V={v:'home'};render();return}
+  try{if(view!=='ex'&&view!=='prep'&&S.prep&&S.prep.ret){S.prep.ret=null}}catch(e){}
   _rP();try{if(view==='ex'&&P().ret&&!app.querySelector('.prepret')){app.insertAdjacentHTML('afterbegin','<div class="card hi prepret" style="padding:10px 14px"><button class="link" onclick="prepBack()">← Back to '+esc(cw(P().ret)[1])+': chapter steps</button></div>')}}catch(e){}
   try{if((view==='today'||view==='qp')&&!app.querySelector('.prepc')){var hd=app.querySelector('.tdhd'),nx=hd&&hd.nextElementSibling;if(hd)(nx&&nx.classList.contains('sub')?nx:hd).insertAdjacentHTML('afterend',card())}}catch(e){}};
-var _sbP=subBar;subBar=function(){_sbP();try{if(view==='prep'){document.querySelectorAll('#sub .segs button').forEach(function(b){b.setAttribute('aria-selected',String((b.getAttribute('onclick')||'').indexOf("'qp'")>=0))});var cb=document.querySelector('#sub .smcrumb .link');if(cb){cb.setAttribute('onclick',"goView('qp')");cb.textContent='← Quick prep'}}document.querySelectorAll('#sub .segs2 button').forEach(function(b){var o=b.getAttribute('onclick')||'';if(o.indexOf("goView('prep')")>=0&&b.firstChild&&b.firstChild.nodeType===3)b.firstChild.nodeValue='Prep'})}catch(e){}};
+var _sbP=subBar;subBar=function(){_sbP();try{if(grpOf(view)==='maths'){var sg=document.querySelector('#sub .segs');
+    if(sg&&!sg.querySelector('.prtab')){var tb=document.createElement('button');tb.className='prtab';tb.setAttribute('role','tab');tb.textContent='Exam prep';tb.onclick=function(){prepOpen()};sg.insertBefore(tb,sg.firstChild)}
+    if(sg){var onP=view==='prep'||(view==='ex'&&P().ret);sg.querySelectorAll('button').forEach(function(b){if(onP)b.setAttribute('aria-selected',String(b.classList.contains('prtab')));else if(b.classList.contains('prtab'))b.setAttribute('aria-selected','false')})}
+    if(view==='prep'){var cr=document.querySelector('#sub .smcrumb');if(cr){if(V.v==='home')cr.remove();else{var cb=cr.querySelector('.link');if(cb){cb.setAttribute('onclick','prepOpen()');cb.textContent='← Exam prep: all chapters'}var sp=cr.querySelector('span');if(sp)sp.textContent=V.id?cw(V.id)[1]:''}}}}document.querySelectorAll('#sub .segs2 button').forEach(function(b){var o=b.getAttribute('onclick')||'';if(o.indexOf("goView('prep')")>=0&&b.firstChild&&b.firstChild.nodeType===3)b.firstChild.nodeValue='Prep'})}catch(e){}};
 var css=document.createElement('style');css.textContent=
  '.pghd{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;margin:4px 0 8px}.pgbig{font-size:1.7rem;line-height:1}'+
  '.pbar{display:block;height:8px;border-radius:99px;background:var(--line);overflow:hidden}.pbar i{display:block;height:100%;background:var(--accent);border-radius:99px}.pbar.sm{height:5px;margin-top:4px}'+
@@ -434,6 +446,7 @@ var css=document.createElement('style');css.textContent=
  '.opt.chopt{display:flex!important;gap:12px;align-items:center;text-align:left;width:100%}.opt.chopt .chsv{flex:none}.opt.chopt span{flex:1;line-height:1.3}'+
  '.wtag{background:var(--warn);border-radius:8px;padding:6px 10px;margin:0 0 8px;font-size:.88rem}.wtag small{color:var(--muted)}'+
  '.wrow,.wrow2 summary{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--line)}.wrow small,.wrow2 small{display:block;color:var(--muted)}.wrow2 summary{cursor:pointer;list-style:none}.wrow2 summary::-webkit-details-marker{display:none}.wrow2:first-of-type summary{border-top:0}.wrow2 .pill,.wrow .pill{flex:none;white-space:nowrap}'+
+ '.prhow summary{cursor:pointer}.prhow ol{margin:8px 0 0;padding-left:1.3em}.prhow li{margin:5px 0}#sub .segs .prtab{font-weight:600}'+
  '.pchips{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}.pchips button{text-align:left;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px;color:inherit;cursor:pointer}.pchips b{display:block;font-size:.86rem;line-height:1.2}.pchips small{color:var(--muted)}.pchips .sug{border-color:var(--accent);background:var(--accent-soft)}'+
  '.pex{display:flex;gap:8px;align-items:center;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:8px 0;color:inherit;cursor:pointer}.pex>span:last-child{flex:1}.pex .pdots i{font-style:normal}'+
  '.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}.row3 .btn{text-align:center;padding:10px 6px}';
