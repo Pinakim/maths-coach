@@ -1103,7 +1103,7 @@ function home(){
   h+='<div class="row2"><button class="btn alt" onclick="start(\'a\')">Mixed (all chapters)</button><button class="btn alt" onclick="start(\'w\')"'+(wk.length?'':' disabled')+'>Weak spots'+(wk.length?' ('+wk.length+')':'')+'</button></div>';
   app.innerHTML=h;
 }
-var GUIDE='https://claude.ai/artifact/9DFxeZkykCrgsnaUP5jEmy';
+var GUIDE='https://claude.ai/artifact/AFkWW5QUp8SRf5gWSiko8X';
 function todayView(){
   var wk=weakList(),L=mcAll(),hot=L.filter(function(m){return mcHeat(m)>=3}).length,star=L.filter(function(m){return m.st}).length,open=mkList().filter(function(m){return!m.fx}).length;
   var h='<div class="tdhd"><h1>Today</h1><span class="tdbtns">'+(S.hideqt?'':'<button class="guideb qtb" onclick="qtShow()">💬 Quote</button>')+'<a class="guideb" href="'+GUIDE+'" target="_blank" rel="noopener">📖 Guide</a></span></div><p class="sub">One small step at a time. Pick anything below, or tap <b>Ask</b> whenever you want Claude.</p>';

@@ -258,7 +258,9 @@ function eCtx(){
   }catch(err){}
   return{kind:'all',sec:'Study Buddy'}}
 /* the button sits beside Hint and Ask */
-function eFab(){var b=document.getElementById('explFab'),a=document.getElementById('askFab'),h=document.getElementById('hintFab');if(!b||!a)return;var c=eCtx();
+/* the axiom ladder lives in the Learn tab only */
+var E_LEARN=['cd','base','ex','th','tl','cb','pl','lz','story','tz'];
+function eFab(){var b=document.getElementById('explFab'),a=document.getElementById('askFab'),h=document.getElementById('hintFab');if(!b||!a)return;var c=E_LEARN.indexOf(view)>=0?eCtx():null;
   b.hidden=!c;document.body.classList.toggle('hexpl',!!c);if(!c)return;
   var off=a.offsetWidth+8+(h&&!h.hidden?h.offsetWidth+8:0);b.style.right='calc(max(12px, env(safe-area-inset-right, 0px)) + '+off+'px)';
   document.body.style.setProperty('--ew',(off+b.offsetWidth+8)+'px');b.classList.toggle('on',c.kind==='q')}

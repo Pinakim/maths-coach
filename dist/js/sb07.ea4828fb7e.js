@@ -51,7 +51,7 @@ pickA=function(k){
       S.ev.push({k:'q',p:cur.p,l:cur.l,ok:true,tag:'',q:cur.q.slice(0,90),pick:'',ts:Date.now(),g:GEN?1:0});
       if(S.l[cur.p]!=null)S.l[cur.p]=Math.min(3,S.l[cur.p]+1);mkFix('q:'+cur.q);
       cur.t.forEach(function(t){if(t&&S.w[t])S.w[t]--});save();setLast(k,true);
-      fb.innerHTML='<div class="fb ok"><b>'+CHEER[Math.floor(Math.random()*CHEER.length)]+'</b> '+esc(cur.h)+'</div><div class="ganal"><h3>Why it works: the ladder</h3>'+(ladHtml(ladData())||'<p>'+esc(cur.h)+'</p>')+'<button class="link" style="margin-top:8px" onclick="eOpen()">Climb the full ladder ›</button></div>'+nextBtns();
+      fb.innerHTML='<div class="fb ok"><b>'+CHEER[Math.floor(Math.random()*CHEER.length)]+'</b> '+esc(cur.h)+'</div>'+nextBtns();
       return}
     /* got there after a slip or a hint: full explanation and the reason behind the struggle */
     if(!PQ.logged){PQ.logged=true;PQ.first='Needed a hint';log.push({p:cur.p,ok:false,tag:'Needed a hint'});S.ev.push({k:'q',p:cur.p,l:cur.l,ok:false,tag:'Needed a hint',q:cur.q.slice(0,90),pick:'',ts:Date.now(),g:GEN?1:0})}
@@ -79,8 +79,7 @@ window.explainNow=function(){if(!PQ||PQ.done)return;PQ.done=true;locked=true;
 /* ---------- detailed explanation + mistake analysis ---------- */
 function anOffline(){var d=ladData(),g=PQ.first?tg(PQ.first):['',''];
   return'<div class="ganal"><div class="ansb"><small>Answer</small><div>'+esc(cur.o[cur.a])+'</div></div><h3>The method</h3><p>'+esc(cur.h)+'</p>'+
-    (PQ.wrong.length?'<h3>What your pick shows</h3><p>You chose '+PQ.wrong.map(function(i){return'<b>'+esc(cur.o[i])+'</b>'}).join(' then ')+'.'+(g[0]?' That usually comes from: <b>'+esc(g[0])+'</b>.':'')+(g[1]?' '+esc(g[1]):'')+'</p>':'')+
-    '<h3>The ladder</h3>'+ladHtml(d)+'</div>'}
+    (PQ.wrong.length?'<h3>What your pick shows</h3><p>You chose '+PQ.wrong.map(function(i){return'<b>'+esc(cur.o[i])+'</b>'}).join(' then ')+'.'+(g[0]?' That usually comes from: <b>'+esc(g[0])+'</b>.':'')+(g[1]?' '+esc(g[1]):'')+'</p>':'')+'</div>'}
 function anHtml2(a){var d=ladData();
   var h='<div class="ganal"><div class="ansb"><small>Answer</small><div>'+esc(cur.o[cur.a])+'</div></div>';
   h+='<h3>Step by step</h3><ol class="steps">'+(a.steps||[]).map(function(s){return'<li>'+esc(s)+'</li>'}).join('')+'</ol>';
@@ -88,9 +87,8 @@ function anHtml2(a){var d=ladData();
   h+='<h3>The real reason</h3><div class="groot"><b>'+esc(a.gap)+'</b>'+esc(a.reason)+'</div>';
   if(a.fix)h+='<p><b>How to fix it:</b> '+esc(a.fix)+'</p>';
   if(a.check)h+='<p><b>Quick self-check:</b> '+esc(a.check)+'</p>';
-  h+='<h3>The ladder</h3>'+ladHtml(d,a.lad||null);
   h+='<p class="gsaved">✓ Saved to your gaps memory'+(a.n>1?' (seen '+a.n+' times now)':'')+'. Find it under Progress and My mistakes.</p>';
-  h+='<button class="link" onclick="eOpen()">Climb the full ladder ›</button></div>';return h}
+  h+='</div>';return h}
 async function analyse2(how){var box=document.getElementById('pAn');if(!box)return;var q=cur,P=PQ;
   box.innerHTML=anOffline()+'<p class="pload" aria-live="polite">Claude is finding the real reason behind this one…</p>';
   try{var s=await getS();if(!s){box.innerHTML=anOffline()+'<p class="pload">Open the app while signed in to claude.ai to get Claude’s mistake analysis. This slip is still saved in My mistakes.</p>';return}

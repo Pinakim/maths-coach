@@ -591,3 +591,185 @@ document.head.appendChild(css);
 })();
 
 /*PREP-END*/
+
+;
+/*HABIT-START*/
+/*HABIT: practice-habit flip cards inside Memory cards (tab "Habits").
+  Each mistake type found in the notebook reviews (IMPD.weak) and each kind of slip in My mistakes gets its own colour.
+  Front: the moment the habit is needed. Back: the habit, with the slip it prevents.
+  "I do this" three times in a row fades the colour step by step to grey (habit formed). "Still forget", a "Not yet" on
+  that weak spot in Improve, or a new slip of that kind brings the full colour back. Neutral wording only. */
+(function(){
+var PAL=['#e8590c','#1c7ed6','#d6336c','#7048e8','#0c8599','#2b8a3e','#f08c00','#4263eb','#ae3ec9','#087f5b','#5c940d','#c92a2a'];
+var GREY='#adb5bd',NEED=3;
+/* hand-written cards for the current mistake types, keyed by type name; new types fall back to their fix lines */
+var HC={
+'Allied angles: the sign and the sin/cos change':[
+ ['You meet sin 200° or cos(270° − θ). What do you decide first?','The quadrant, and from it the sign. Only then the name of the function.',0],
+ ['Which angles switch sin to cos and cos to sin?','Only 90° and 270°. 180° and 360° keep the same function.',1],
+ ['A question asks for all angles in a range such as 0° to 720°. Last check?','List every angle inside the range before writing the answer.',-1],
+ ['Starting a trigonometry session. Two-minute warm-up?','Recite the 0°, 30°, 45°, 60°, 90° table in degrees and radians.',2]],
+'What the words and letters mean':[
+ ['About to use a formula such as y = mx + c. What goes on paper first?','One line saying what each letter stands for.',1],
+ ['The question says “intercept” or “distance along”. What do you draw?','A small sketch marking exactly the point or distance asked for.',2],
+ ['Before solving, how do you check you read the question right?','Say it back in your own words: “I need the point where … meets …”.',2],
+ ['A line such as y + 4 = 0. How do you find A, B and C?','Write every term, even the missing one: 0·x + 1·y + 4 = 0.',1]],
+'Signs and expansions':[
+ ['Substituting a negative number into a formula. What goes round it?','Brackets, every single time.',2],
+ ['How many moves on one line of working?','One. Move one term per line.',1],
+ ['A bracket has just been expanded. Ten-second check?','Put x = 1 into both sides. They must give the same number.',1],
+ ['An important product such as 21 × 15. How do you make sure?','Work it out a second way: 20 × 15 + 15 = 315.',0]],
+'Inequalities and modulus: cases and direction':[
+ ['A quadratic inequality such as (2x − 3)(x + 3) ≤ 0. What do you draw?','A sign line with both roots marked. Read the answer off the line.',0],
+ ['When does the inequality sign turn round?','Only when multiplying or dividing by a negative number.',1],
+ ['You see |A| = |B|. What is the very first line?','“A = B or A = −B”. Two cases, always.',2],
+ ['A slope or length comes out non-real, such as m = i. What then?','Reject it, and write why in words.',2]],
+'Planning beyond the first step':[
+ ['Before the first line of working, what goes on paper?','The plan in a few words, such as “collect, factor, divide”.',0],
+ ['The working stopped after one correct move. Now what?','Go back to the plan: what still stands between you and the answer alone on one side?',0],
+ ['A letter appears twice, as in “make t the subject”. What do you do?','Gather its terms on one side, then take it out as a factor.',1],
+ ['A fraction is compared with a number. First move?','Bring everything to one side, then ask what sign the denominator has.',2]],
+'Finishing with a complete answer':[
+ ['When is a question finished?','When the final answer is boxed in the form the question asks for.',1],
+ ['You reject a value, as in 2ˣ = −1. What must you add?','The reason, in a few words: 2ˣ is always positive.',2],
+ ['About to move to the next question. Last check?','Re-read the last line of the question. Does your last line answer it?',0]]
+};
+var KDF={c:'A slip of kind Concept: the idea itself was not clear. What is the habit?',
+  m:'A slip of kind Method: the wrong method or formula was picked. What is the habit?',
+  a:'A slip of kind Calculation: right method, then a sign or arithmetic slip. What is the habit?',
+  k:'A slip of kind Careless: the question was misread or copied wrong. What is the habit?'};
+var KDN={c:'Concept slips',m:'Method slips',a:'Calculation slips',k:'Careless slips'};
+var KDB={c:'Go back to the idea and its example first, then retry the question.',
+  m:'Before solving, name the template that fits. Use the Pattern spotter to practise choosing.',
+  a:'One change per line, and check each sign before moving on.',
+  k:'Underline what is asked before starting, and re-read the question before answering.'};
+var HV={rv:null};
+function HS(){S.hbs=S.hbs||{};return S.hbs}
+function kindOf(m){return m.kd==='x'?'':m.kd&&KDN[m.kd]?m.kd:(m.habit==='Careless slip'?'k':'')}
+/* types: one per notebook mistake type, then one per kind of slip that has happened */
+function types(){var D=window.IMPD,T=[];
+  if(D&&D.weak)D.weak.forEach(function(w,i){var hc=HC[w.n],cards=hc?hc.map(function(c,j){return{id:'w:'+w.n.slice(0,40)+':'+j,f:c[0],b:c[1],sl:c[2]>=0&&w.seen?w.seen[c[2]%w.seen.length]:''}}):(w.fix||[]).map(function(x,j){return{id:'w:'+w.n.slice(0,40)+':'+j,f:'Habit '+(j+1)+' for '+w.n+'. What do you do?',b:x.replace(/^Step \d+:\s*/,''),sl:w.seen&&w.seen[j%w.seen.length]||''}});
+    T.push({key:'w'+i,wi:i,n:w.n,sub:w.c,col:PAL[i%PAL.length],cards:cards})});
+  var last={},cnt={};try{mkList().forEach(function(m){var k=kindOf(m);if(!k)return;var t=m.ts||m.t0||0;if(!m.fx){cnt[k]=(cnt[k]||0)+1;if(t>(last[k]||0))last[k]=t}})}catch(e){}
+  var off=T.length;['a','k','m','c'].forEach(function(k,j){if(!cnt[k])return;T.push({key:'k'+k,kd:k,last:last[k],n:KDN[k],sub:cnt[k]+' open in My mistakes',col:PAL[(off+j)%PAL.length],cards:[{id:'k:'+k,f:KDF[k],b:KDB[k],sl:''}]})});
+  return T}
+/* streak for a card; a new slip of its kind after the last "I do this" brings the colour back */
+function streak(c,t){var s=HS()[c.id];if(!s)return 0;if(t.kd&&t.last&&t.last>(s.at||0)){s.k=0;s.at=t.last}return Math.min(s.k||0,NEED)}
+function colr(base,k){return k>=NEED?GREY:k===0?base:'color-mix(in srgb,'+base+' '+(k===1?62:32)+'%,'+GREY+')'}
+function card(c,t,big){var k=streak(c,t),q=encodeURIComponent('h:'+c.id).replace(/'/g,'%27'),fl=MCV.fl['h:'+c.id];
+  var lab=k>=NEED?'✓ Habit formed':k?'Fading · '+k+' of '+NEED:'Habit to build';
+  return'<div class="mcd hbd'+(k>=NEED?' hbg':'')+(fl?' fl':'')+(big?' big':'')+'" id="mc_'+q+'" style="--hc:'+colr(t.col,k)+'"><div class="mcin" onclick="mcFlip(\''+q+'\')" role="button" tabindex="0" aria-label="Flip card">'+
+   '<div class="mcf"><small>'+lab+'</small><b>'+esc(c.f)+'</b><em>Tap to see the habit</em></div>'+
+   '<div class="mcb"><small>The habit</small><div><b>'+esc(c.b)+'</b></div>'+(c.sl?'<em>It stops this slip: '+esc(c.sl)+'</em>':'')+'</div></div></div>'}
+function all(){var a=[];types().forEach(function(t){t.cards.forEach(function(c){a.push({c:c,t:t})})});return a}
+function habView(){var T=types(),A=all(),todo=A.filter(function(x){return streak(x.c,x.t)<NEED}).length;
+  var h='<p class="sub" style="margin:10px 0 6px">Habits to practise, made from the kinds of mistake found in your work. Each colour is one mistake type. Say “I do this” three times in a row and the colour fades to grey. A new slip of that type brings the colour back.</p>';
+  h+='<div class="tplkey">'+T.map(function(t){return'<span class="sg" style="--sc:'+t.col+'">'+esc(t.n)+'</span>'}).join('')+'</div>';
+  h+='<button class="btn" onclick="habRevStart()"'+(A.length?'':' disabled')+'>'+(todo?'Practise habits ('+todo+' to build)':'Review formed habits')+'</button>';
+  if(!A.length)h+='<div class="card"><p class="sub" style="margin:0">No habits yet. They appear once mistakes are found in notebook checks or practice.</p></div>';
+  T.forEach(function(t){var ks=t.cards.map(function(c){return streak(c,t)}),done=ks.filter(function(k){return k>=NEED}).length,ord=t.cards.map(function(c,i){return i}).sort(function(a,b){return ks[a]-ks[b]});
+    h+='<div class="hbhd" style="--sc:'+t.col+'"><b>'+esc(t.n)+'</b><small>'+esc(t.sub)+' · '+done+' of '+t.cards.length+' formed</small></div><div class="mcgrid">'+ord.map(function(i){return card(t.cards[i],t)}).join('')+'</div>'});
+  return h}
+window.habRevStart=function(){var A=all(),L=A.filter(function(x){return streak(x.c,x.t)<NEED});if(!L.length)L=A;if(!L.length)return;
+  L.sort(function(a,b){return streak(a.c,a.t)-streak(b.c,b.t)});HV.rv={q:L.slice(0,20).map(function(x){return x.c.id}),i:0,ok:0,sh:0};MCV.fl={};mcView();window.scrollTo(0,0)};
+function habRev(){var r=HV.rv,x=all().filter(function(y){return y.c.id===r.q[r.i]})[0];if(!x){HV.rv=null;return mcView()}
+  var h='<div class="meta"><span>Habits · '+esc(x.t.n)+'</span><span>'+(r.i+1)+' / '+r.q.length+'</span></div><div class="bar"><i style="width:'+(r.i/r.q.length*100)+'%"></i></div>';
+  h+='<p class="sub">Picture the moment, say the habit out loud, then flip to check.</p>'+card(x.c,x.t,1);
+  h+='<div class="row2"><button class="btn alt" onclick="habAns(0)">Still forget</button><button class="btn" onclick="habAns(1)">I do this</button></div><button class="btn alt" onclick="habStop()">Stop</button>';
+  app.innerHTML=h}
+window.habStop=function(){HV.rv=null;mcView()};
+window.habAns=function(ok){var r=HV.rv,id=r.q[r.i],s=HS()[id]=HS()[id]||{k:0,at:0};if(ok){r.ok++;s.k=Math.min((s.k||0)+1,NEED)}else{r.sh++;s.k=0}s.at=Date.now();save();
+  r.i++;MCV.fl={};if(r.i>=r.q.length){var a=r.ok,b=r.sh;HV.rv=null;mcView();showToast(a+' done · '+b+' still forgotten. Forgotten habits got their full colour back.');return}habRev()};
+/* "Not yet" on a weak spot in Improve brings that type's colours back */
+var _im=window.impMark;if(_im)window.impMark=function(i,ok){try{if(!ok){var D=window.IMPD,w=D&&D.weak[i];if(w)Object.keys(HS()).forEach(function(id){if(id.indexOf('w:'+w.n.slice(0,40)+':')===0){S.hbs[id].k=0;S.hbs[id].at=Date.now()}})}}catch(e){}return _im.apply(this,arguments)};
+/* ---------- Memory cards page: three tabs (Tricks, Habits, Templates), a Practise button, and Help me memorise ---------- */
+var TAB=[['tr','Tricks'],['hab','Habits'],['tpl','Templates']];
+function tabs(){var n=all().filter(function(x){return streak(x.c,x.t)<NEED}).length;
+  return'<div class="seg mctabs" role="tablist" aria-label="Memory card sections">'+TAB.map(function(t){return'<button role="tab" aria-selected="'+(MCV.t===t[0])+'" onclick="mcTab(\''+t[0]+'\')">'+t[1]+(t[0]==='hab'&&n?' <small class="mctn">'+n+'</small>':'')+'</button>'}).join('')+'</div>'+
+  '<button class="btn mcpx" onclick="pxStart()">🎯 Practise to overcome mistakes</button>'}
+window.mcTab=function(t){MCV.t=t;HV.rv=null;PX=null;MCV.rv=null;MCV.fl={};mcView();window.scrollTo(0,0)};
+/* templates of each chapter as flip cards */
+var TPLC=null;
+function tplView(){var chs=ST.filter(function(c){return stPats(c).length});if(!TPLC||!chs.some(function(c){return c.id===TPLC}))TPLC=chs[0]&&chs[0].id;
+  var c=chs.filter(function(x){return x.id===TPLC})[0];if(!c)return'<div class="card"><p class="sub" style="margin:0">No templates yet.</p></div>';
+  var L=stPats(c),h='<p class="sub" style="margin:10px 0 6px">Every template of a chapter as a flip card. Front: how to spot it. Back: the four steps. Say the steps out loud before you flip.</p>';
+  h+='<select aria-label="Chapter" onchange="TPLC=this.value;mcView()">'+chs.map(function(x){return'<option value="'+x.id+'"'+(x.id===TPLC?' selected':'')+'>'+esc(x.n)+' ('+stPats(x).length+')</option>'}).join('')+'</select>';
+  h+='<div class="mcgrid">'+L.map(function(p,i){var q=encodeURIComponent('t:'+p[0]).replace(/'/g,'%27'),fl=MCV.fl['t:'+p[0]],col=PAL[i%PAL.length];
+    return'<div class="mcd tpc'+(fl?' fl':'')+'" id="mc_'+q+'" style="--hc:'+col+'"><div class="mcin" onclick="mcFlip(\''+q+'\')" role="button" tabindex="0" aria-label="Flip card">'+
+      '<div class="mcf"><small>Template · '+esc(c.n)+'</small><b>'+esc(p[1])+'</b><div class="sub">Spot it: '+esc(p[2])+'</div><em>Tap to see the steps</em></div>'+
+      '<div class="mcb"><small>'+esc(p[1])+'</small><ol class="tpl sm">'+p[3].map(function(s,j){return'<li class="s'+j+'"><span>'+STG[j]+'</span>'+esc(s)+'</li>'}).join('')+'</ol>'+mmBtn('t:'+p[0])+'</div></div></div>'}).join('')+'</div>';
+  h+='<button class="link" onclick="tlOpen(\''+c.id+'\')">Open the full template library ›</button>';
+  return h}
+function head(){return'<h1>Memory cards</h1>'+tabs()}
+var _mv=mcView;mcView=function(){if(MCV.f==='hab'){MCV.f='all';MCV.t='hab'}MCV.t=MCV.t||'tr';
+  if(PX)return pxView();if(HV.rv)return habRev();
+  if(MCV.t==='hab'){app.innerHTML=head()+habView();return}
+  if(MCV.t==='tpl'){app.innerHTML=head()+tplView();return}
+  _mv();if(view!=='mc'||MCV.rv)return;
+  try{var h1=app.querySelector('h1');if(h1)h1.insertAdjacentHTML('afterend',tabs())}catch(e){}};
+/* Help me memorise: on the back of every trick, habit and template card */
+function mmBtn(id){return'<button class="mmb" onclick="event.stopPropagation();mmOpen(\''+encodeURIComponent(id).replace(/'/g,'%27')+'\')">💡 Help me memorise</button>'}
+var _mh=mcHtml;mcHtml=function(m,mini){var h=_mh(m,mini);return h.replace(/(<div class="mcb">[\s\S]*?)(<\/div><\/div><\/div>)$/,function(_,a,b){return a+mmBtn(m.id)+b})};
+var _cd=card;card=function(c,t,big){return _cd(c,t,big).replace(/<\/div><\/div><\/div>$/,mmBtn('h:'+c.id)+'</div></div></div>')};
+function cardData(id){var r=null;
+  if(id.indexOf('t:')===0){ST.forEach(function(c){stPats(c).forEach(function(p){if('t:'+p[0]===id)r={ch:c.n,f:'Template: '+p[1]+'. Spot it: '+p[2],b:'Steps: '+p[3].map(function(s,j){return STG[j]+': '+s}).join(' | ')}})});return r}
+  if(id.indexOf('h:')===0){all().forEach(function(x){if('h:'+x.c.id===id)r={ch:x.t.n,f:'Habit moment: '+x.c.f,b:'Habit: '+x.c.b}});return r}
+  mcAll().forEach(function(m){if(m.id===id)r={ch:m.ch,f:m.f,b:m.b}});return r}
+function MM(){S.mme=S.mme||{};return S.mme}
+window.mmOpen=function(q){var id=decodeURIComponent(q),d=cardData(id);if(!d)return;var o=document.getElementById('mmov');if(o)o.remove();
+  document.body.insertAdjacentHTML('beforeend','<div id="mmov" class="mmov" role="dialog" aria-modal="true" aria-label="Help me memorise" onclick="if(event.target===this)mmClose()"><div class="mmbox"><button class="mmx" aria-label="Close" onclick="mmClose()">✕</button><small class="eyebrow">Help me memorise · '+esc(d.ch)+'</small><p style="margin:4px 0 0"><b>'+esc(d.f)+'</b></p><p class="sub" style="margin:4px 0 10px">'+esc(d.b)+'</p><div id="mmBody"></div></div></div>');
+  var e=MM()[id];if(e)mmShow(id,e);else mmGen(id)};
+window.mmClose=function(){var o=document.getElementById('mmov');if(o)o.remove()};
+function mmShow(id,e){var b=document.getElementById('mmBody');if(!b)return;var q=encodeURIComponent(id).replace(/'/g,'%27');
+  b.innerHTML='<div class="mmsec"><span>Example</span>'+esc(e.example)+'</div><div class="mmsec"><span>Analogy</span>'+esc(e.analogy)+'</div><div class="mmsec"><span>Memory hook</span><b>'+esc(e.hook)+'</b></div>'+(e.check?'<details class="mmsec"><summary><span>Quick check</span>'+esc(e.check)+'</summary><div class="fb ok" style="margin:6px 0 0">'+esc(e.answer||'')+'</div></details>':'')+
+   '<button class="btn alt" onclick="mmGen(decodeURIComponent(\''+q+'\'))">Explain it another way</button>'}
+var MMBUSY=false;
+window.mmGen=async function(id){var b=document.getElementById('mmBody');if(!b||MMBUSY)return;var d=cardData(id);if(!d)return;MMBUSY=true;var old=MM()[id];
+  b.innerHTML='<p class="sub">Claude is finding an example and an analogy…</p>';
+  try{var s=await getS();if(!s){b.innerHTML='<p class="sub">This needs Claude. Open the app while signed in to claude.ai.</p>';return}
+    var r=await s.json('Help a senior-school maths student remember one memory card for good.\nChapter: '+d.ch+'\nFront: '+d.f+'\nBack: '+d.b+intLine()+'\n'+(old?'Do not reuse this earlier analogy: '+old.analogy+'\n':'')+
+      'Write:\n- example: one short worked example with real numbers that uses exactly this card (2 to 4 lines, plain-text maths such as ², √, π, °, /, θ).\n- analogy: one everyday analogy that makes the idea stick (under 50 words). Use an interest if it fits naturally; keep the maths exact.\n- hook: a very short memory hook, rhyme or mnemonic (under 15 words).\n- check: one quick self-test question on the card, and answer: its answer.\nEvery fact and number must be mathematically correct. Use neutral wording: address the student as "you".\nReturn JSON only: {"example":"","analogy":"","hook":"","check":"","answer":""}',{cache:false,modelTier:'default'});
+    if(!r||!r.example||!r.analogy||!r.hook)throw new Error('shape');
+    var e={example:String(r.example),analogy:String(r.analogy),hook:String(r.hook),check:String(r.check||''),answer:String(r.answer||''),ts:Date.now()};MM()[id]=e;
+    var ks=Object.keys(S.mme);if(ks.length>200){ks.sort(function(a,b){return S.mme[a].ts-S.mme[b].ts});ks.slice(0,ks.length-200).forEach(function(k){delete S.mme[k]})}
+    save();mmShow(id,e)
+  }catch(err){var bb=document.getElementById('mmBody');if(bb)bb.innerHTML='<p class="sub">'+(err&&err.code?esc(sampleErr(err)):'That came back in the wrong shape. Try again.')+'</p><button class="btn alt" onclick="mmGen(decodeURIComponent(\''+encodeURIComponent(id).replace(/'/g,'%27')+'\'))">Try again</button>'}
+  finally{MMBUSY=false}};
+/* ---------- Practise to overcome mistakes: fresh questions on the mistake types, mixed with retries of her own wrong questions ---------- */
+var PX=null;
+function wtype(i){var D=window.IMPD;return D&&D.weak[i]}
+function wOrder(){var D=window.IMPD;if(!D||!D.weak)return[];var t=S.impt||{};
+  return D.weak.map(function(w,i){var x=t[i]||{ok:0,no:0};return{i:i,m:(x.ok+1)/(x.ok+x.no+2)}}).sort(function(a,b){return a.m-b.m}).map(function(x){return x.i})}
+window.pxStart=async function(){var W=wOrder().slice(0,3),U=S.impw=S.impw||{},fresh=[],need=[];
+  W.forEach(function(i){var w=wtype(i),n=U[i]||0;if(n<w.d.length){var d=w.d[n];U[i]=n+1;fresh.push({k:'w',i:i,q:d[0],a:d[1]})}else need.push(i)});
+  var own=mkList().filter(function(m){return!m.fx&&m.q&&(m.o&&m.a!=null||m.ans||m.h)}).sort(function(a,b){return(b.ts||0)-(a.ts||0)}).slice(0,3).map(function(m){return{k:'m',id:m.id}});
+  if(need.length){app.innerHTML=head()+'<div class="card"><p class="sub" style="margin:0">Claude is writing fresh questions on your mistake types…</p></div>';
+    try{var s=await getS();if(s){var r=await s.json('Write fresh practice questions for a maths student, one per weak spot below. Each must train exactly that weak spot and be answerable in under 3 minutes.\n'+need.map(function(i,j){var w=wtype(i);return(j+1)+'. '+w.n+' ('+w.c+'). Slips seen: '+w.seen.join(' ')+' Routine: '+w.fix.join(' ')}).join('\n')+'\nDo not repeat these questions: '+need.map(function(i){return wtype(i).d.map(function(d){return d[0]}).join(' | ')}).join(' | ')+'\nUse plain-text maths (², √, π, °, /, θ). Every answer must be correct; give a short answer with the key step.\nReturn JSON only: {"qs":[{"n":1,"q":"","a":""}]}',{cache:false,modelTier:'default'});
+      (r&&r.qs||[]).forEach(function(x){var i=need[(+x.n||0)-1];if(i!=null&&x.q&&x.a)fresh.push({k:'w',i:i,q:String(x.q),a:String(x.a),g:1})})}}catch(e){}
+    need.forEach(function(i){if(!fresh.some(function(x){return x.i===i})){var w=wtype(i),n=U[i]||0,d=w.d[n%w.d.length];U[i]=n+1;fresh.push({k:'w',i:i,q:d[0],a:d[1]})}})}
+  var q=[],a=0,b=0;while(a<fresh.length||b<own.length){if(a<fresh.length)q.push(fresh[a++]);if(b<own.length)q.push(own[b++])}
+  if(!q.length){showToast('No mistakes to practise yet. Check a notebook page or try some practice first.');return}
+  try{save()}catch(e){}PX={q:q,i:0,ok:0,no:0,show:false,pick:null};mcView();window.scrollTo(0,0)};
+function pxView(){var r=PX,it=r.q[r.i],h=head();
+  h+='<div class="meta"><span>Practise to overcome mistakes</span><span>'+(r.i+1)+' / '+r.q.length+'</span></div><div class="bar"><i style="width:'+(r.i/r.q.length*100)+'%"></i></div>';
+  if(it.k==='w'){var w=wtype(it.i),T=types().filter(function(t){return t.wi===it.i})[0];
+    h+='<div class="card pxc" style="--sc:'+(T?T.col:'var(--accent)')+'"><small class="pxl">'+esc(w.n)+(it.g?' · fresh from Claude':'')+'</small><p style="margin:6px 0 0;font-size:1.05rem"><b>'+esc(it.q)+'</b></p><p class="sub" style="margin:6px 0 0">Routine: '+esc(w.fix[0].replace(/^Step \d+:\s*/,''))+'</p></div>';
+    if(!r.show)h+='<button class="btn" onclick="PX.show=true;mcView()">Show answer</button><button class="btn alt" onclick="pxWrite()">✍ Write it in full, Claude checks</button>';
+    else h+='<div class="fb ok"><b>Answer:</b> '+esc(it.a)+'</div><div class="row2"><button class="btn alt" onclick="pxAns(0)">Not yet</button><button class="btn" onclick="pxAns(1)">I got it right</button></div>'}
+  else{var m=mkList().filter(function(x){return x.id===it.id})[0];if(!m){r.i++;return r.i<r.q.length?pxView():pxEnd()}
+    h+='<div class="card pxc" style="--sc:var(--bad)"><small class="pxl">Your own mistake · '+esc(m.topic||m.src||'')+'</small><p style="margin:6px 0 0;white-space:pre-line"><b>'+esc(m.q)+'</b></p></div>';
+    if(m.o&&m.a!=null){h+=m.o.map(function(o,j){var cls=r.pick==null?'':j===m.a?' ok':j===r.pick?' bad':'';return'<button class="btn alt pxo'+cls+'"'+(r.pick!=null?' disabled':'')+' onclick="pxPick('+j+')">'+esc(o)+'</button>'}).join('');
+      if(r.pick!=null)h+='<div class="fb '+(r.pick===m.a?'ok':'bad')+'">'+(r.pick===m.a?'<b>Right.</b> This mistake is fixed.':'<b>Not yet.</b> Answer: '+esc(m.o[m.a]))+(m.h?'<div style="margin-top:4px">'+esc(m.h)+'</div>':'')+'</div><button class="btn" onclick="pxNext()">Next</button>'}
+    else if(!r.show)h+='<button class="btn" onclick="PX.show=true;mcView()">Show answer</button>';
+    else h+='<div class="fb ok"><b>Answer:</b> '+esc(m.ans||m.h)+'</div><div class="row2"><button class="btn alt" onclick="pxAns(0)">Not yet</button><button class="btn" onclick="pxAns(1)">I got it right</button></div>'}
+  h+='<button class="btn alt" onclick="PX=null;mcView()">Stop</button>';app.innerHTML=h}
+window.pxWrite=function(){var it=PX.q[PX.i],w=wtype(it.i);if(!window.wrCustom)return;PX=null;wrCustom({topic:w.c,q:it.q,ask:it.q,ans:it.a,h:w.fix.join(' '),m:3,o:[it.a],a:0})};
+window.pxPick=function(j){var it=PX.q[PX.i],m=mkList().filter(function(x){return x.id===it.id})[0];PX.pick=j;if(m){if(j===m.a){PX.ok++;mkFix(m.ref)}else{PX.no++;m.n=(m.n||1)+1;m.ts=Date.now()}save()}mcView()};
+window.pxAns=function(ok){var it=PX.q[PX.i];if(ok)PX.ok++;else PX.no++;
+  if(it.k==='w'){var t=(S.impt=S.impt||{})[it.i]=S.impt[it.i]||{ok:0,no:0,ts:0};if(ok)t.ok++;else{t.no++;var w=wtype(it.i);Object.keys(HS()).forEach(function(id){if(id.indexOf('w:'+w.n.slice(0,40)+':')===0){S.hbs[id].k=0;S.hbs[id].at=Date.now()}})}t.ts=Date.now()}
+  else{var m=mkList().filter(function(x){return x.id===it.id})[0];if(m){if(ok)mkFix(m.ref);else{m.n=(m.n||1)+1;m.ts=Date.now()}}}
+  save();pxNext()};
+window.pxNext=function(){PX.i++;PX.show=false;PX.pick=null;if(PX.i>=PX.q.length)return pxEnd();mcView();window.scrollTo(0,0)};
+function pxEnd(){var a=PX.ok,b=PX.no;PX=null;MCV.t='hab';mcView();showToast(a+' right · '+b+' not yet. Not-yet types got their full colour back in Habits.')}
+})();
+/*HABIT-END*/

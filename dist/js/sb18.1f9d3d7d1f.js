@@ -383,7 +383,7 @@ window.sbPf={
 
 /* ---------- at launch: a remembered student opens straight in, unless their PIN is due ---------- */
 (function(){var s=cur(),last=+(R.get('sb_last')||0);
-  if(ROLE==='student'){if(!s||s.needsNew)ROLE='pending';
+  if(ROLE==='student'){ROLE='pending'}if(false){if(!s||s.needsNew)ROLE='pending';
     else if(s.pin&&now()-last>IDLE.student){pin('enter',s.id,false,{lock:true});return}}
   if(ROLE==='pending')whoScreen()})();
 try{render()}catch(e){}

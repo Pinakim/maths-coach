@@ -147,13 +147,15 @@ async function reply(){if(SR.busy)return;SR.busy=true;var w={r:'cl',t:'',wait:1}
     w.go=(d&&Array.isArray(d.go)?d.go:[]).filter(function(k){return BYK[k]}).slice(0,3)}
   catch(e){w.err=1;w.t=e&&e.off?'Claude isn’t available inside the app here. Open Study Buddy while signed in to claude.ai, or carry on in a full Claude chat.':(e&&e.code?sampleErr(e):'Claude couldn’t answer just now. Try again in a moment.')}
   delete w.wait;SR.busy=false;if(document.getElementById('srSheet')&&SR.mode==='c')drawChat()}
+window.gfxChatDraw=function(i){var m=SR.chat[i];if(!m||!window.gfxDraw)return;var q='';for(var j=i;j>=0;j--)if(SR.chat[j].r==='me'){q=SR.chat[j].t;break}
+  window.gfxDraw('The student asked: '+String(q).slice(0,500)+'\nThe tutor answered: '+String(m.t).slice(0,900)+'\nDraw the key idea of this answer as a clear diagram.','Draw it')};
 function drawChat(focus){var hd=document.getElementById('srHd'),b=document.getElementById('srBody'),inp=document.getElementById('srIn');if(!hd)return;
   if(!document.getElementById('srAskHd')){hd.innerHTML='<button class="srx" id="srAskHd" onclick="srBack()">← Search</button><div style="flex:1;min-width:0;text-align:center"><b>Ask Claude</b></div><button class="srx" onclick="srClose()">Close</button>'}
   var h='<div class="srchat" aria-live="polite">';
   if(!SR.chat.length)h+='<div class="srm cl"><small>Claude</small>Ask anything about your subjects, a problem you are stuck on, or how to use the app.</div>';
   SR.chat.forEach(function(m){if(m.r==='me'){h+='<div class="srm me">'+esc(m.t)+'</div>';return}
     if(m.wait){h+='<div class="srm cl wait"><small>Claude</small>Thinking…</div>';return}
-    h+='<div class="srm cl"><small>Claude</small>'+esc(m.t)+(m.go&&m.go.length?'<div class="srgo">'+m.go.map(function(k){var o=BYK[k];return'<button onclick="srRun(\''+esc(k)+'\')">Open: '+esc(o.t)+'<small>'+esc(o.w)+'</small></button>'}).join('')+'</div>':'')+'</div>'});
+    h+='<div class="srm cl"><small>Claude</small>'+esc(m.t)+(m.err?'':'<button class="link gfxchatb" onclick="gfxChatDraw('+SR.chat.indexOf(m)+')">\uD83C\uDFA8 Draw it</button>')+(m.go&&m.go.length?'<div class="srgo">'+m.go.map(function(k){var o=BYK[k];return'<button onclick="srRun(\''+esc(k)+'\')">Open: '+esc(o.t)+'<small>'+esc(o.w)+'</small></button>'}).join('')+'</div>':'')+'</div>'});
   h+='</div><p class="srfoot">This conversation stays on this screen until the app closes. <button class="link" onclick="srFull()">Continue in a full Claude chat</button>'+(SR.chat.length?' · <button class="link" onclick="srNew()">Start over</button>':'')+'</p>';
   b.innerHTML='<div>'+h+'</div>';
   if(inp.hidden||!document.getElementById('srA')){inp.hidden=false;inp.innerHTML='<div><textarea id="srA" rows="1" placeholder="Ask a follow-up…" aria-label="Message to Claude"></textarea><button class="btn" id="srSend">Send</button></div>';
