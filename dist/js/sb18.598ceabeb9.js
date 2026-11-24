@@ -195,7 +195,7 @@ function setPid(pid){if(pid===window.SBPID)return;
   CR=false;if(window.SBDB&&window.SBUID)DOC=SBDB.doc('data/users/'+SBUID+'/'+sbDocName())}
 var _use=window.useAs;
 function enterStudent(id){setPid(id);ROLE='pending';_use('student');act()}
-function enterTutor(){TST={};setPid('tview');ROLE='pending';_use('tutor');if(window.sbSetBase)sbSetBase(null);view='tut';render();act()}
+function enterTutor(){TST={};var _sh=REG.students.filter(function(s){return s.share});if(_sh.length===1){setPid(_sh[0].id);ROLE='pending';_use('tutor');return}setPid('tview');ROLE='pending';_use('tutor');if(window.sbSetBase)sbSetBase(null);view='tut';render();act()}
 window.useAs=function(r){if(r==='student'){whoScreen();return}if(r==='tutor'){tutorGo();return}if(r==='guest')setPid('none');_use(r)};
 window.sbTutorMsg=function(){var s=cur();return s?'Viewing '+s.name+'’s progress. Nothing you do is recorded.':'Tutor view. Pick a student to see their progress.'};
 window.sbViewing=function(){var s=cur();return(s?'Viewing <b>'+e_(s.name)+'</b>’s progress. Nothing here is recorded.':'No student open. Nothing here is recorded.')+' <button class="link" style="margin-left:6px" onclick="goView(\'tut\')">All students</button>'};
@@ -302,7 +302,7 @@ function repText(s,st,days){var x=stats(st,days),t='Study Buddy progress report\
   t+='\nSuggested focus for the next session: '+(x.weak[0]||(x.q?'mixed revision':'getting started with a first practice round'))+'.';
   return t}
 function fetchSt(id){if(TLD[id])return;TLD[id]=1;loadSt(id).then(function(st){TST[id]={st:st||{},at:now()};TLD[id]=0;if(ROLE==='tutor'&&(view==='tut'||view==='trep'))render()})}
-function tutView(){var h='<h1>Students</h1><p class="sub">Each student chooses whether to share. Private notes are never shown here.</p>';
+function tutView(){var h='<h1>Students</h1><p class="sub">Each student chooses whether to share. Notes are never shown here.</p>';
   var c=cur();if(c)h+='<div class="rbar"><span>Viewing <b>'+e_(c.name)+'</b> in the app.</span><button class="link" onclick="sbPf.tclear()">Stop viewing</button></div>';
   var paused=REG.tutor.pinr&&now()-REG.tutor.pinr<864e5;
   REG.students.forEach(function(s){var d=TST[s.id];if(s.share&&!d)fetchSt(s.id);
@@ -333,7 +333,7 @@ function repView(){var s=stu(RP.id);if(!s||!s.share){view='tut';return tutView()
 function setCards(){if(view!=='set'||document.getElementById('pfCard'))return;var rc=document.getElementById('roleCard');if(!rc)return;var c=document.createElement('div');c.className='card';c.id='pfCard';
   if(ROLE==='student'){var s=cur();if(!s)return;
     c.innerHTML='<h2>Your profile</h2><div class="ask"><input id="pfNm" maxlength="24" value="'+e_(s.name)+'" aria-label="Your name"><button class="chipb" onclick="sbPf.rename()">Save name</button></div>'+
-     '<div class="setrow" style="margin-top:14px"><div><b>Share progress with my tutor</b><small>The tutor sees your scores, chapters, time spent and mistakes, and can open your progress to look around. Private notes stay private; only notes you mark as shared are shown.</small></div><button class="tog" role="switch" aria-label="Share progress with my tutor" aria-checked="'+!!s.share+'" onclick="sbPf.share()"><i></i></button></div>'+
+     '<div class="setrow" style="margin-top:14px"><div><b>Share progress with my tutor</b><small>The tutor sees your scores, chapters, time spent and mistakes, and can open your progress to look around. Your notes are never shown to the tutor.</small></div><button class="tog" role="switch" aria-label="Share progress with my tutor" aria-checked="'+!!s.share+'" onclick="sbPf.share()"><i></i></button></div>'+
      '<div class="setrow" style="margin-top:14px"><div><b>PIN</b><small>'+(s.pin?'On. Study Buddy locks after 40 idle minutes and asks for it again.':'Off. Anyone using this device can open your profile and private notes.')+'</small></div></div>'+
      '<div class="row2"><button class="btn alt" onclick="sbPf.chpin()">'+(s.pin?'Change PIN':'Set a PIN')+'</button>'+(s.pin?'<button class="btn alt" onclick="sbPf.nopin()">Remove PIN</button>':'')+'</div>'}
   else if(ROLE==='tutor')c.innerHTML='<h2>Tutor PIN</h2><p class="sub" style="margin:2px 0 8px">'+(REG.tutor.pin?'On. The tutor screen locks after 40 idle minutes.':'Off.')+'</p><button class="btn alt" onclick="sbPf.tpin()">'+(REG.tutor.pin?'Change tutor PIN':'Set a tutor PIN')+'</button>';

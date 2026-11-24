@@ -13,8 +13,8 @@ function sjOf(n){return SUBJ.indexOf(n.sj)>=0?n.sj:'Maths'}
 function tyOf(n){return TY[n.ty]?n.ty:'note'}
 function txt(n){return((n.b||'')+(n.tx?(n.b?'\n':'')+n.tx:'')).trim()}
 function viewSj(){return VSJ[view]||(grpOf(view)==='maths'?'Maths':'Other')}
-/* everything the current viewer may see: a tutor gets shared notes only */
-window.ntShown=function(){var L=ntList();return RO()?L.filter(function(n){return n.sh}):L};
+/* everything the current viewer may see: a tutor sees no notes at all */
+window.ntShown=function(){var L=ntList();return RO()?[]:L};
 ntGet=function(id){return ntShown().filter(function(n){return n.id===id})[0]};
 NTV.sj='All';NTV.ty='All';NTV.shf=0;NTV.wu=null;NTV.last='Maths';
 
@@ -31,7 +31,7 @@ try{document.documentElement.style.setProperty('--navh',nav.offsetHeight+'px')}c
 var _vt=viewTop;viewTop=function(v){_vt(v);if(v==='nt')NTV.wu=null};
 
 /* a tutor never meets memory cards made from private notes */
-var _mc=mcAll;mcAll=function(){var a=_mc();if(!RO())return a;return a.filter(function(m){if(String(m.id).indexOf('n:')!==0)return true;var id=m.id.slice(2);return ntList().some(function(n){return n.id===id&&n.sh})})};
+var _mc=mcAll;mcAll=function(){var a=_mc();if(!RO())return a;return a.filter(function(m){return String(m.id).indexOf('n:')!==0})};
 
 /* ---------- list ---------- */
 function filt(skipTy){var q=NTV.q.toLowerCase();
@@ -40,7 +40,7 @@ function lockPill(n){return n.sh?'<span class="nt2lock sh">'+OPEN+'Shared</span>
 function chip(on,js,lbl,n){return'<button class="chipb'+(on?' on':'')+'" aria-pressed="'+!!on+'" onclick="'+js+'">'+lbl+(n!=null?'<small>'+n+'</small>':'')+'</button>'}
 ntView=function(){if(NTV.wu)return wuView();if(NTV.ed&&!RO())return ntEdit();NTV.ed=null;if(NTV.open){var n=ntGet(NTV.open);if(n)return ntOne(n);NTV.open=null}ntHome()};
 ntHome=function(){var L=ntShown(),ro=RO(),shown=filt().sort(function(a,b){return(b.st?1:0)-(a.st?1:0)||b.up-a.up});
-  var h='<h1>'+(ro?'Shared notes':'Notes')+'</h1><p class="sub">'+(ro?'Only the notes the student has chosen to share appear here. Private notes stay hidden.':'Key ideas and insights from every subject, kept as your own write-up. Each note is private until you share it.')+'</p>';
+  var h='<h1>'+'Notes'+'</h1><p class="sub">'+(ro?'Notes belong to the student. They are not shown in Tutor view.':'Key ideas and insights from every subject, kept as your own write-up. Your tutor never sees your notes.')+'</p>';
   if(!ro){h+='<div class="nt2new"><button class="btn" onclick="ntNew(\'text\',\'idea\')">Key idea<small>A rule, definition or method worth keeping</small></button><button class="btn in" onclick="ntNew(\'text\',\'insight\')">Insight<small>Something that finally clicked, in your words</small></button></div>';
     h+='<div class="nt2more">'+chip(0,"ntNew('text','note')",'Aa Plain note')+chip(0,"ntNew('ink','note')",'✎ Handwrite')+chip(0,"ntNew('photo','note')",'◉ Photo')+'</div>'}
   if(L.length){var sj={},ty={},nsh=0;L.forEach(function(n){sj[sjOf(n)]=(sj[sjOf(n)]||0)+1;if(n.sh)nsh++});
@@ -94,7 +94,7 @@ ntOne=function(n){var src=ntSrc(n),ro=RO(),t=tyOf(n),id=n.id;
   h+='<div class="card ntbody">'+(src?'<img class="ntimg" src="'+esc(src)+'" alt="'+esc(n.t)+'" onerror="this.outerHTML=\'<div class=ntph>Image not available on this device</div>\'">':'')+(n.b?'<div class="ctext">'+esc(n.b)+'</div>':'')+
     (n.tx?'<div class="nttx"><small>Claude’s reading of the handwriting</small><div class="ctext">'+esc(n.tx)+'</div></div>':'')+(n.src?'<div class="nt2src">Noted while on: '+esc(n.src)+'</div>':'')+'</div>';
   if(ro){app.innerHTML=h+'<p class="sub">Shared by the student. Notes can’t be changed in Tutor view.</p>';return}
-  h+='<div class="card nt2share"><div class="nt2row"><div><b>'+(n.sh?OPEN+'Shared':LOCK+'Private')+'</b><small>'+(n.sh?'Visible in Tutor view on this app. Switch off to make it private again.':'Only you can see this. Switch on to show it in Tutor view.')+'</small></div><button class="nt2sw" role="switch" aria-checked="'+!!n.sh+'" aria-label="Share this note" onclick="ntShare(\''+id+'\')"><i></i></button></div>';
+  h+='<div class="card nt2share"><div class="nt2row"><div><b>'+(n.sh?OPEN+'Shared':LOCK+'Private')+'</b><small>'+(n.sh?'Marked as shared, so it is included in a shared-only write-up. Your tutor never sees notes.':'Only you can see this. Switch on to include it in a shared-only write-up. Your tutor never sees notes.')+'</small></div><button class="nt2sw" role="switch" aria-checked="'+!!n.sh+'" aria-label="Share this note" onclick="ntShare(\''+id+'\')"><i></i></button></div>';
   h+='<div class="nt2send"><a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/'+(S.tw||'')+'?text='+encodeURIComponent(noteText(n))+'">'+WAI+'Send a copy</a><button class="btn alt" onclick="cpText(ntNoteText(ntGet(\''+id+'\')),\'Note copied.\')">Copy text</button></div></div>';
   h+='<div class="row2"><button class="btn alt" onclick="ntStar(\''+id+'\')">'+(n.st?'★ Starred':'☆ Star')+'</button><button class="btn alt" onclick="ntEditOpen(\''+id+'\')">Edit</button></div>';
   if(src)h+='<button class="btn alt" id="ntRead" onclick="ntRead(\''+id+'\')">'+(n.tx?'Read the handwriting again':'Turn handwriting into text (Claude)')+'</button><div id="ntRm" class="sub" style="margin:6px 0 0"></div>';
@@ -102,7 +102,7 @@ ntOne=function(n){var src=ntSrc(n),ro=RO(),t=tyOf(n),id=n.id;
   h+='<button class="btn alt chatb" onclick="askOpen()">'+CHAT_ICON+'Ask Claude about this note</button>';
   h+='<button class="btn alt ntdel" onclick="ntDel(\''+id+'\')">Delete note</button>';
   app.innerHTML=h};
-window.ntShare=function(id){var n=ntGet(id);if(!n||RO())return;n.sh=n.sh?0:1;save();ntOne(n);showToast(n.sh?'Shared. This note now shows in Tutor view.':'Private again. Only you can see it.')};
+window.ntShare=function(id){var n=ntGet(id);if(!n||RO())return;n.sh=n.sh?0:1;save();ntOne(n);showToast(n.sh?'Marked as shared for write-ups. Your tutor still cannot see notes.':'Private again. Only you can see it.')};
 var _st=ntStar;ntStar=function(id){if(!RO())_st(id)};
 var _dl=ntDel;ntDel=async function(id){if(!RO())return _dl(id)};
 
