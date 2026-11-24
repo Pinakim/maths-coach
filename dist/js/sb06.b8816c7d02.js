@@ -9,6 +9,7 @@ window.ROLE=rget()||'pending';
 var BASE=null;window.sbSetBase=function(v){BASE=v};/* the student's saved state, kept while a tutor looks around */
 /* no write to the student's device copy unless the student is using the app */
 var _ls=Storage.prototype.setItem,_lsRaw=_ls;Storage.prototype.setItem=function(k,v){if(k==='coach1'&&ROLE!=='student')return;return _ls.call(this,k,v)};
+var _tpv=null,_r0=render;render=function(){if(ROLE==='tutor'&&view==='set'&&_tpv!=='set'&&BASE){try{var _b=JSON.parse(BASE);Object.keys(S).forEach(function(k){var v=S[k];if(v==null||typeof v!=='object'){if(k in _b)S[k]=_b[k];else delete S[k]}})}catch(e){}}_tpv=view;return _r0.apply(this,arguments)};
 var _save0=save;
 save=function(){if(ROLE==='student')return _save0();
   /* a tutor may still change Settings (interests, report number, theme): only those plain values reach the student's copy */

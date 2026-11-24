@@ -496,8 +496,11 @@ function fixCard(){var G=openGaps(),n=openMk(),g=G[0],w=weak(),h='<div class="ca
 
 function prView(){var hot=0;try{hot=mcAll().filter(function(m){return mcHeat(m)>=3}).length}catch(e){}
   var h=head('Practise','Fix what went wrong first. Then practise something new.');
+  var tpc='<div class="card hi"><div class="eyebrow">Tutor pack</div><p style="margin:4px 0 0"><b>Practice sheet and answer key for every chapter</b></p><p class="sub" style="margin:4px 0 8px">Ready to print or send for a class with the tutor.</p><button class="btn" onclick="goView(\'tp\')">Open Tutor pack</button></div>';
+  if(window.ROLE==='tutor')h+=tpc;
   h+=fixCard();
   try{if(window.prepCard)h+=prepCard()}catch(e){}
+  if(window.ROLE!=='tutor')h+=tpc;
   h+='<div class="card"><div class="ux3h">Practise</div>'+
     row('✓','Quick round on a chapter','8 questions, about 10 minutes',"goView('practice')")+
     row('◎','Which method fits?','Spot the pattern before you start',"goView('st')")+

@@ -10995,6 +10995,7 @@ window.ROLE=rget()||'pending';
 var BASE=null;window.sbSetBase=function(v){BASE=v};/* the student's saved state, kept while a tutor looks around */
 /* no write to the student's device copy unless the student is using the app */
 var _ls=Storage.prototype.setItem,_lsRaw=_ls;Storage.prototype.setItem=function(k,v){if(k==='coach1'&&ROLE!=='student')return;return _ls.call(this,k,v)};
+var _tpv=null,_r0=render;render=function(){if(ROLE==='tutor'&&view==='set'&&_tpv!=='set'&&BASE){try{var _b=JSON.parse(BASE);Object.keys(S).forEach(function(k){var v=S[k];if(v==null||typeof v!=='object'){if(k in _b)S[k]=_b[k];else delete S[k]}})}catch(e){}}_tpv=view;return _r0.apply(this,arguments)};
 var _save0=save;
 save=function(){if(ROLE==='student')return _save0();
   /* a tutor may still change Settings (interests, report number, theme): only those plain values reach the student's copy */
@@ -17372,8 +17373,11 @@ function fixCard(){var G=openGaps(),n=openMk(),g=G[0],w=weak(),h='<div class="ca
 
 function prView(){var hot=0;try{hot=mcAll().filter(function(m){return mcHeat(m)>=3}).length}catch(e){}
   var h=head('Practise','Fix what went wrong first. Then practise something new.');
+  var tpc='<div class="card hi"><div class="eyebrow">Tutor pack</div><p style="margin:4px 0 0"><b>Practice sheet and answer key for every chapter</b></p><p class="sub" style="margin:4px 0 8px">Ready to print or send for a class with the tutor.</p><button class="btn" onclick="goView(\'tp\')">Open Tutor pack</button></div>';
+  if(window.ROLE==='tutor')h+=tpc;
   h+=fixCard();
   try{if(window.prepCard)h+=prepCard()}catch(e){}
+  if(window.ROLE!=='tutor')h+=tpc;
   h+='<div class="card"><div class="ux3h">Practise</div>'+
     row('✓','Quick round on a chapter','8 questions, about 10 minutes',"goView('practice')")+
     row('◎','Which method fits?','Spot the pattern before you start',"goView('st')")+
