@@ -1888,7 +1888,7 @@ function drop(k){var o=ld();delete o[k];try{localStorage.setItem(LS,JSON.stringi
 function E(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function H(s){return E(s).replace(/\n/g,'<br>')}
 function rr(){try{X.rerender()}catch(e){}}
-function msg(t){var m=document.getElementById('thMsg');if(m)m.textContent=t}
+function msg(t){var m=document.getElementById('thMsg');if(m)m.textContent=t;try{if(window.o3Note)window.o3Note(t)}catch(e){}}
 
 /* which ready-made animations suit which chapter (offered first; Claude may pick any maths one) */
 var SUG={qe:['quadgraph'],ie:['modulus','quadineq'],ar:['radarc'],tg:['allied','trigplot'],ca:['compound','allied'],pc:['pc'],bt:['binom','pascal'],

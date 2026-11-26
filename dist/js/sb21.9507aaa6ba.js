@@ -401,7 +401,60 @@ function weakOf(id){var a=W()[id],b=W()[id+'_f'],w=a&&b?(b.ts>a.ts?b:a):(a||b);r
 function stu(){return window.ROLE==='student'||window.ROLE==='guest'}
 function H(s){return esc(String(s==null?'':s)).replace(/\n/g,'<br>')}
 function tot(c){return c.qs.reduce(function(s,q){return s+(q.m||0)},0)}
-function setMsg(t){var m=document.getElementById('tpMsg');if(m)m.textContent=t}
+function setMsg(t){var m=document.getElementById('tpMsg');if(m)m.textContent=t;o3Note(t)}
+/* ---- ONE-CLICK BUILD: question paper + answer key + theory notes, with progress bar and timer ---- */
+var O3=null;
+function o3Fmt(ms){var s=Math.max(0,Math.round(ms/1000)),m=Math.floor(s/60);return m+':'+(s%60<10?'0':'')+(s%60)}
+function o3Th(k){if(!window.tpThBuild)return true;try{var t=JSON.parse(localStorage.getItem('sb_tptheory')||'{}')[k];return!!(t&&t.done)}catch(e){return false}}
+function o3Up(x){if(O3&&x>O3.cp)O3.cp=x}
+function o3Note(t){if(!O3)return;var s=String(t),m;O3.msg=s;
+  if(/planning the question paper/i.test(s)){O3.ph=1;o3Up(3)}
+  else if(m=/worked solutions, questions (\d+)(?: and \d+)? of (\d+)/i.exec(s)){O3.ph=1;o3Up(6+((+m[1]-1)/Math.max(1,+m[2]))*50)}
+  else if(/checking every answer/i.test(s)){O3.ph=1;o3Up(60)}
+  else if(/where mistakes can happen/i.test(s)){O3.ph=1;o3Up(66)}
+  else if(/planning the concepts/i.test(s)){O3.ph=2;o3Up(72)}
+  else if(m=/writing concepts (\d+)(?: and \d+)? of (\d+)/i.exec(s)){O3.ph=2;o3Up(74+((+m[1]-1)/Math.max(1,+m[2]))*16)}
+  else if(m=/drawing picture (\d+) of (\d+)/i.exec(s)){O3.ph=2;o3Up(91+((+m[1]-1)/Math.max(1,+m[2]))*8)}
+  o3Paint()}
+window.o3Note=o3Note;
+function o3Pct(){return Math.min(100,Math.round((O3.i+O3.cp/100)/O3.n*100))}
+function o3Steps(){var q=O3.cp>=6||O3.ph===2,a=O3.ph===2,th=O3.cp>=100;
+  function it(n,d,on){return'<span class="pill '+(d?'ok':on?'mid':'')+'">'+(d?'✓ ':on?'● ':'○ ')+n+(d?' done':on?' in progress':'')+'</span>'}
+  return it('Questions',q,!q)+' '+it('Answers',a,q&&!a)+' '+it('Theory',th,a&&!th)}
+function o3Paint(){if(!O3)return;var g=function(i){return document.getElementById(i)},p=o3Pct(),el=Date.now()-O3.t0,b=g('o3bar');
+  if(b){b.style.width=p+'%';if(b.parentNode)b.parentNode.setAttribute('aria-valuenow',p)}
+  var a=g('o3pct');if(a)a.textContent=p+'%';
+  var t=g('o3time');if(t)t.textContent=o3Fmt(el);
+  var e=g('o3eta');if(e)e.textContent=p>=8&&p<100?'about '+Math.max(1,Math.round(el*(100-p)/p/60000))+' min left (rough estimate)':'estimating the time left…';
+  var m=g('o3msg');if(m)m.textContent=O3.msg||'Starting…';
+  var st=g('o3steps');if(st)st.innerHTML=o3Steps()}
+function o3View(){var k=O3.ids[O3.i],h='<h1>Tutor pack</h1><div class="card"><b>Building: '+esc(cname(k))+'</b>'+(O3.n>1?'<p class="sub" style="margin:4px 0 0">Chapter '+(O3.i+1)+' of '+O3.n+'</p>':'')+
+  '<div id="o3steps" style="margin:8px 0">'+o3Steps()+'</div>'+
+  '<div class="bar" role="progressbar" aria-label="Build progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" style="margin:8px 0 6px"><i id="o3bar" style="width:0%"></i></div>'+
+  '<p class="sub" style="margin:0"><b id="o3pct">0%</b> · time so far <b id="o3time">0:00</b> · <span id="o3eta"></span></p>'+
+  '<p class="sub" id="o3msg" aria-live="polite" style="margin:8px 0 0">Starting…</p>'+
+  '<span id="tpMsg" hidden></span><span id="thMsg" hidden></span>'+
+  '<p class="sub" style="margin:8px 0 0">Keep this page open. Finished parts are saved as it goes, so it can continue later.</p></div>';
+  app.innerHTML=h;o3Paint()}
+async function o3Run(ids,own){if(TP.busy||O3||!ids.length)return;
+  O3={ids:ids,n:ids.length,i:0,cp:0,ph:1,msg:'Starting…',t0:Date.now(),timer:null};
+  TP.busy=true;TP.err='';TP.k=ids.length===1?ids[0]:null;TP.all=null;
+  O3.timer=setInterval(o3Paint,1000);var ok=true;
+  try{
+    for(var i=0;i<ids.length;i++){var k=ids[i];O3.i=i;O3.cp=0;O3.ph=1;O3.msg='Starting…';if(view==='tp')tpView();
+      var c=C(k);
+      if(!(c&&c.done)){if(!await build(k,ids.length===1?own:null)){ok=false;break}}
+      O3.ph=2;o3Up(70);o3Paint();
+      if(!o3Th(k)){await window.tpThBuild(k);
+        if(!o3Th(k)){TP.err=TP.err||'The theory notes stopped before they finished (possibly Claude’s usage limit). Tap the button again to continue; everything finished so far is kept.';ok=false;break}}
+      O3.cp=100;o3Paint()}
+  }catch(e){ok=false;TP.err=errText(e)}
+  clearInterval(O3.timer);var ms=Date.now()-O3.t0;O3=null;TP.busy=false;
+  if(ok){try{showToast('Built the question paper, answer key and theory notes in '+o3Fmt(ms)+'.')}catch(e){}}
+  if(view==='tp')tpView()}
+window.tpOne=function(k){var own=isF(k)?null:(TP.paste||'').split('\n').map(function(x){return x.trim()}).filter(function(x){return x.length>8}).slice(0,30);return o3Run([k],own)};
+function o3Card(k,c){var er=TP.err?'<div class="fb bad" style="margin:8px 0 0">'+esc(TP.err)+'</div>':'';
+  return'<div class="card hi"><b>Build everything for this chapter</b><p class="sub" style="margin:4px 0 8px">One tap builds all three: the question paper, the answer key and the theory notes. A progress bar and timer show how far it has got. It takes several minutes, so keep this page open.'+(c&&c.qs?' It carries on from where it stopped.':' Any examples from the tutor’s book can be added in the box below first.')+'</p><div style="margin:0 0 8px"><span class="pill">○ Questions</span> <span class="pill">○ Answers</span> <span class="pill">○ Theory</span></div>'+er+'<button class="btn" onclick="tpOne(\''+k+'\')">'+(c&&c.qs?'Continue building all three':'Build all three')+'</button></div>'}
 function fm(x){return String(Math.round(x*2)/2)}
 async function cl(p,ims){var e0;for(var t=0;t<2;t++){try{var s=await getS();if(!s)throw{nos:1};var o={cache:false,modelTier:'default'};if(ims)o.images=ims;var d=await s.json(p,o);if(d)return d}catch(e){e0=e;if(e&&e.nos)throw e}}throw e0||new Error('shape')}
 var MATHNOTE='Write maths in plain text with Unicode (x², x₁, √, π, ≤, ≥, ≠, ∈, ∞, a/b, (a+b)/(c+d)), never LaTeX or dollar signs.';
@@ -462,10 +515,8 @@ async function build(k,own){var c=C(k)||{id:k,qs:null,sol:{},ver:null},pre=TP.al
   }catch(e){TP.err=errText(e);return false}}
 window.tpBuild=async function(k){if(TP.busy)return;TP.k=k;var own=isF(k)?null:(TP.paste||'').split('\n').map(function(x){return x.trim()}).filter(function(x){return x.length>8}).slice(0,30);
   TP.busy=true;TP.err='';tpView();await build(k,own);TP.busy=false;if(view==='tp')tpView()};
-window.tpAll=async function(){if(TP.busy)return;var L=CHL.filter(function(r){var c=C(r[0]);return r[0]!=='#'&&!(c&&c.done)}).map(function(r){return r[0]});if(!L.length){showToast('Every chapter is already built.');return}
-  TP.busy=true;TP.err='';TP.k=null;TP.all={i:0,n:L.length,id:L[0]};
-  for(var i=0;i<L.length;i++){TP.all.i=i;TP.all.id=L[i];if(view==='tp')tpView();if(!await build(L[i]))break}
-  TP.busy=false;TP.all=null;if(view==='tp')tpView()};
+window.tpAll=async function(){if(TP.busy||O3)return;var L=CHL.filter(function(r){var c=C(r[0]);return r[0]!=='#'&&!(c&&c.done&&o3Th(r[0]))}).map(function(r){return r[0]});if(!L.length){showToast('Every chapter is already built.');return}
+  return o3Run(L,null)};
 window.tpRebuild=function(k){drop(k);delete W()[k];save();TP.pv=null;TP.err='';TP.files=[];tpView()};
 
 /* ---------- the two documents ---------- */
@@ -582,11 +633,12 @@ window.tpOpen=function(k){TP.k=k;TP.pv=null;TP.err='';TP.merr='';TP.files=[];if(
 window.tpHome=function(){var k=TP.k;if(k&&isF(k)){tpOpen(base(k));return}TP.k=null;TP.pv=null;tpView();window.scrollTo(0,0)};
 function pill(id){var c=C(id),w=W()[id];return(w?'<span class="pill st">'+fm(w.got)+'/'+w.mx+'</span> ':'')+(c?(c.done?'<span class="pill ok">Ready</span>':'<span class="pill mid">Part built</span>'):'')}
 function tpView(){
+  if(O3){o3View();return}
   if(TP.busy){var bn=TP.all?cname(TP.all.id):title(TP.k);app.innerHTML='<h1>Tutor pack</h1><div class="card"><b>Building: '+esc(bn)+'</b>'+(TP.all?'<p class="sub" style="margin:4px 0 0">Chapter '+(TP.all.i+1)+' of '+TP.all.n+' still to build.</p>':'')+'<p class="sub" id="tpMsg" aria-live="polite" style="margin:6px 0 0">Starting…</p><p class="sub" style="margin:8px 0 0">Each chapter takes several minutes. Keep this page open. Finished parts are saved as it goes, so it can continue later.</p></div>';return}
-  if(!TP.k){var left=CHL.filter(function(r){var c=C(r[0]);return r[0]!=='#'&&!(c&&c.done)}).length,h='<h1>Tutor pack</h1><p class="sub">For classes with the tutor. Each chapter has a question paper covering its worked-example types, a separate answer key with the strategy, every step, other methods and a detailed explanation, and theory notes with pictures and animations. After the class, upload the answer sheet to find the weak spots.</p>';
+  if(!TP.k){var left=CHL.filter(function(r){var c=C(r[0]);return r[0]!=='#'&&!(c&&c.done&&o3Th(r[0]))}).length,h='<h1>Tutor pack</h1><p class="sub">For classes with the tutor. Each chapter has a question paper covering its worked-example types, a separate answer key with the strategy, every step, other methods and a detailed explanation, and theory notes with pictures and animations. After the class, upload the answer sheet to find the weak spots.</p>';
     if(TP.err)h+='<div class="fb bad" style="margin:0 0 12px">'+esc(TP.err)+'</div>';
     h+='<div class="card">';CHL.forEach(function(r){if(r[0]==='#')h+='<div class="eyebrow" style="margin:10px 0 2px">'+r[1]+'</div>';else h+='<button class="trow" onclick="tpOpen(\''+r[0]+'\')"><span class="tt"><b>'+esc(r[1])+'</b></span>'+pill(r[0])+'</button>'});h+='</div>';
-    if(left)h+='<div class="card"><b>Build every chapter</b><p class="sub" style="margin:4px 0 6px">'+left+' chapter'+(left>1?'s are':' is')+' not built yet. This builds them one after another. It takes a long time and may stop at Claude’s usage limit: tap again later and it carries on from where it stopped.</p><button class="btn alt" onclick="tpAll()">Build the remaining chapters</button></div>';
+    if(left)h+='<div class="card"><b>Build every chapter, all three parts</b><p class="sub" style="margin:4px 0 6px">'+left+' chapter'+(left>1?'s have':' has')+' something left to build. One tap builds the question paper, answer key and theory notes for each, one after another, with a progress bar and timer. It takes a long time and may stop at Claude’s usage limit: tap again later and it carries on from where it stopped.</p><button class="btn alt" onclick="tpAll()">Build all three for the remaining chapters</button></div>';
     app.innerHTML=h;return}
   var k=TP.k,c=C(k),h='<button class="link back" onclick="tpHome()" style="margin-bottom:8px">‹ '+(isF(k)?esc(cname(k)):'Tutor pack')+'</button><h1>'+esc(title(k))+'</h1>';
   if(c&&c.done&&c.qs){var bad=c.ver?Object.keys(c.ver).filter(function(x){return!c.ver[x].ok}).length:0;
@@ -597,11 +649,12 @@ function tpView(){
     if(!c.zd&&!locked())h+='<div class="card"><b>Weak-spot notes</b><p class="sub" style="margin:4px 0 6px">Add a “where mistakes can happen” note to every answer in the key, based on the student’s known weak spots.</p>'+(TP.err?'<div class="fb bad" style="margin:0 0 8px">'+esc(TP.err)+'</div>':'')+'<button class="btn" onclick="tpZones(\''+k+'\')">Add weak-spot notes</button></div>';h+=(window.tpThCard&&!isF(k)?tpThCard(k):'')+markCard(k,c);
     h+='<div class="card"><b>A new paper</b><p class="sub" style="margin:4px 0 6px">Build a fresh paper for this '+(isF(k)?'follow-up':'chapter')+'. The current paper, key and marking are replaced'+(isF(k)?'':', and known weak spots get extra questions')+'.</p><button class="btn alt" onclick="tpRebuild(\''+k+'\')">Start over</button></div>';
     app.innerHTML=h;if(TP.pv){var f=document.getElementById('tpPv');if(f)f.srcdoc=docOf(TP.pv)}return}
+  if(!isF(k))h+=o3Card(k,c);
   h+='<p class="sub">'+(isF(k)?'A shorter paper built on the weak spots from the marked answer sheet, with its own answer key.':'A question paper covering the chapter’s worked-example types, and a separate answer key.')+'</p>';
   var er=TP.err?'<div class="fb bad" style="margin-top:8px">'+esc(TP.err)+'</div>':'';
-  if(c&&c.qs)h+='<div class="card"><b>Part built</b><p class="sub" style="margin:4px 0 0">'+c.qs.length+' questions planned, '+Object.keys(c.sol).length+' solved so far.</p>'+er+'<button class="btn" onclick="tpBuild(\''+k+'\')">Continue building</button></div>';
+  if(c&&c.qs)h+='<div class="card"><b>Part built</b><p class="sub" style="margin:4px 0 0">'+c.qs.length+' questions planned, '+Object.keys(c.sol).length+' solved so far.</p>'+er+'<button class="btn" onclick="tpBuild(\''+k+'\')">Continue the paper and key only</button></div>';
   else if(isF(k))h+='<div class="card">'+er+'<button class="btn" onclick="tpBuild(\''+k+'\')">Build the follow-up paper</button></div>';
-  else h+='<div class="card"><label for="tpPaste"><b>Examples from the tutor’s book (optional)</b></label><p class="sub" style="margin:4px 0 4px">Type or paste them, one per line. Every one goes onto the paper and into the answer key, alongside questions covering the other example types of the chapter.</p><textarea id="tpPaste" rows="5" placeholder="One question per line" oninput="TP_paste(this.value)">'+esc(TP.paste||'')+'</textarea>'+er+'<button class="btn" onclick="tpBuild(\''+k+'\')">Build the paper and key</button><p class="sub" style="margin:8px 0 0">Questions are written fresh in the style of standard ISC textbook examples. They are not copied from any book.</p></div>';
+  else h+='<div class="card"><label for="tpPaste"><b>Examples from the tutor’s book (optional)</b></label><p class="sub" style="margin:4px 0 4px">Type or paste them, one per line. Every one goes onto the paper and into the answer key, alongside questions covering the other example types of the chapter.</p><textarea id="tpPaste" rows="5" placeholder="One question per line" oninput="TP_paste(this.value)">'+esc(TP.paste||'')+'</textarea>'+er+'<button class="btn" onclick="tpBuild(\''+k+'\')">Build the paper and key only</button><p class="sub" style="margin:8px 0 0">Questions are written fresh in the style of standard ISC textbook examples. They are not copied from any book.</p></div>';
   if(window.tpThCard&&!isF(k))h+=tpThCard(k);app.innerHTML=h}
 window.TP_paste=function(v){TP.paste=v};
 window.TPX={TP:TP,cname:cname,base:base,isF:isF,cl:cl,wkAll:wkAll,TEACH:TEACH,MATHNOTE:MATHNOTE,saveBlob:saveBlob,errText:errText,rerender:function(){if(view==='tp')tpView()}};
